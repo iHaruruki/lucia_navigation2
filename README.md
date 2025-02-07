@@ -18,6 +18,8 @@ flowchart LR
     source install/setup.bash
 
 ## Usage
+    ros2 launch nav2_bringup navigation_launch.py use_sim_time:=false
+
 
 ## License
 ## Authors
