@@ -30,7 +30,6 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-# launch/ および config/ ディレクトリ内のファイルをインストール
 install(
   DIRECTORY launch config
   DESTINATION share/${PROJECT_NAME}
