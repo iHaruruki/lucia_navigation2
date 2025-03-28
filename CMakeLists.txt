@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(lucia_nav2)
+project(lucia_navigation2)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
