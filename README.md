@@ -8,7 +8,7 @@ flowchart LR
 ```
 $ sudo apt install ros-humble-twist-mux
 $ sudo apt install ros-humble-navigation2
-$ sudo apt install ros-humble--nav2-bringup
+$ sudo apt install ros-humble-nav2-bringup
 $ sudo apt install ros-humble-robot-localization
 ```
 ## Setup
@@ -20,8 +20,7 @@ $ colcon build --symlink-install
 $ source install/setup.bash
 ```
 ## Usage
-    ros2 launch nav2_bringup navigation_launch.py use_sim_time:=false
-
+    ros2 launch lucia_navigation2 navigation2.launch.py
 
 ## License
 ## Authors
