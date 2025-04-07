@@ -251,6 +251,23 @@ def generate_launch_description():
                              'node_names': lifecycle_nodes}]),
         ],
     )
+    map_server_node = Node(
+        package='nav2_map_server',
+        executable='map_server',
+        name='map_server',
+        output='screen',
+        parameters=[{
+            'yaml_filename': '/home/haaruki/ros2_ws/src/lucia_navigation2/map/map.yaml',
+            'use_sim_time': False}]
+    )
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz_config_dir],
+        parameters=[{'use_sim_time': use_sim_time}],
+        output='screen'
+    )
 
     # Create the launch description and populate
     ld = LaunchDescription()
@@ -270,15 +287,7 @@ def generate_launch_description():
     # Add the actions to launch all of the navigation nodes
     ld.add_action(load_nodes)
     ld.add_action(load_composable_nodes)
-
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        arguments=['-d', rviz_config_dir],
-        parameters=[{'use_sim_time': use_sim_time}],
-        output='screen'
-    )
+    #ld.add_action(map_server_node)
     ld.add_action(rviz_node)
 
     return ld
