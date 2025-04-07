@@ -27,7 +27,7 @@ ros2 launch lucia_description robot.launch.py
 ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
 ros2 run nav2_map_server map_server --ros-args -p yaml_filename:=<map_path> -p use_sim_time:=false
 ros2 run nav2_util lifecycle_bringup map_server
-ros2 run nav2_amcl amcl --ros-args -p use_sim_time:=false
+ros2 run nav2_amcl amcl --ros-args -p use_sim_time:=false -p base_frame_id:=base_link
 ros2 run nav2_util lifecycle_bringup amcl
 ros2 launch lucia_navigation2 navigation2.launch.py
 ```
