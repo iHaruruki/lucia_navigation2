@@ -182,6 +182,7 @@ local_costmap:
         enabled: true
         observation_sources: scan
         scan:
+          sensor_frame: "base_scan"
           topic: /scan
           max_obstacle_height: 2.0
           clearing: true
@@ -228,6 +229,7 @@ global_costmap:
         enabled: true
         observation_sources: scan
         scan:
+          sensor_frame: "base_scan"
           topic: /scan
           max_obstacle_height: 2.0
           clearing: true
