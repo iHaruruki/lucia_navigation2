@@ -37,7 +37,7 @@ def generate_launch_description():
             'map',
             'map.yaml'))
 
-    param_file_name = 'nav2_prams.yaml'
+    param_file_name = 'nav2_params.yaml'
     if ROS_DISTRO == 'humble':
         param_dir = LaunchConfiguration(
             'params_file',
