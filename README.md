@@ -1,11 +1,9 @@
 # lucia_nav2
 ### Node and Topic
 ## Dependency
-```
-$ sudo apt install ros-humble-twist-mux
+```shell
 $ sudo apt install ros-humble-navigation2
 $ sudo apt install ros-humble-nav2-bringup
-$ sudo apt install ros-humble-robot-localization
 ```
 ## Setup
 ```
