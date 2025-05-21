@@ -25,6 +25,7 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 #TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
+TURTLEBOT3_MODEL = 'waffle'
 ROS_DISTRO = os.environ.get('ROS_DISTRO')
 
 
@@ -33,32 +34,33 @@ def generate_launch_description():
     map_dir = LaunchConfiguration(
         'map',
         default=os.path.join(
-            get_package_share_directory('lucia_navigation2'),
+            get_package_share_directory('turtlebot3_navigation2'),
             'map',
             'map.yaml'))
 
-    param_file_name = 'nav2_params.yaml'
+    param_file_name = TURTLEBOT3_MODEL + '.yaml'
     if ROS_DISTRO == 'humble':
         param_dir = LaunchConfiguration(
             'params_file',
             default=os.path.join(
-                get_package_share_directory('lucia_navigation2'),
+                get_package_share_directory('turtlebot3_navigation2'),
                 'param',
+                ROS_DISTRO,
                 param_file_name))
     else:
         param_dir = LaunchConfiguration(
             'params_file',
             default=os.path.join(
-                get_package_share_directory('lucia_navigation2'),
+                get_package_share_directory('turtlebot3_navigation2'),
                 'param',
                 param_file_name))
 
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
 
     rviz_config_dir = os.path.join(
-        get_package_share_directory('lucia_navigation2'),
+        get_package_share_directory('turtlebot3_navigation2'),
         'rviz',
-        'lucia.rviz')
+        'tb3_navigation2.rviz')
 
     return LaunchDescription([
         DeclareLaunchArgument(

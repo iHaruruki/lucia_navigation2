@@ -2,14 +2,9 @@
 <package format="3">
   <name>lucia_navigation2</name>
   <version>0.0.1</version>
-  <description>LiDARの/scanデータを用いたslam_toolboxによる環境地図作成パッケージ</description>
-
-  <maintainer email="your_email@example.com">Haruki Isono</maintainer>
-  <license>BSD</license>
-
+  <description>ROS 2 launch scripts for navigation2</description>
+  <maintainer email="">Haruki Isono</maintainer>
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <depend>rclpy</depend>
-  <!-- slam_toolbox自体はシステムパッケージとしてインストールしている前提 -->
 
   <export>
     <build_type>ament_cmake</build_type>
