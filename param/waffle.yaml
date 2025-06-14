@@ -120,9 +120,9 @@ controller_server:
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: true
-      min_vel_x: 0.0
+      min_vel_x: -0.1
       min_vel_y: 0.0
-      max_vel_x: 0.3
+      max_vel_x: 0.2
       max_vel_y: 0.0
       max_vel_theta: 1.0
       min_speed_xy: 0.0
@@ -175,8 +175,8 @@ local_costmap:
       plugins: ["obstacle_layer", "voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.5
-        cost_scaling_factor: 5.0
+        inflation_radius: 0.8
+        cost_scaling_factor: 3.0
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
