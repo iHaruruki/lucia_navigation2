@@ -22,7 +22,7 @@ ros2 launch lucia_controller bringup.launch.py
 ```
 ros2 launch lucia_navigation2 navigation2.launch.py map:=$HOME/ros2_ws/src/lucia_navigation2/map/map.yaml use_sim_time:=false
 ```
-![](media/nav2.gif)
+![Nav2 Video](media/nav2.gif)
 
 ## License
 ## Authors
