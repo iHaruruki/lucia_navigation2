@@ -9,7 +9,7 @@ amcl:
     alpha3: 0.2
     alpha4: 0.2
     alpha5: 0.2
-    base_frame_id: "base_footprint"  # TODO: change if using base_link only
+    base_frame_id: "base_link"  # Updated: unify with costmap & controller robot_base_frame
     beam_skip_distance: 0.5
     beam_skip_error_threshold: 0.9
     beam_skip_threshold: 0.3
@@ -303,3 +303,20 @@ velocity_smoother:
     odom_duration: 0.1
     use_realtime_priority: false
     enable_stamped_cmd_vel: true
+
+# Lifecycle manager ensures all Nav2 nodes transition to ACTIVE automatically.
+lifecycle_manager:
+  ros__parameters:
+    autostart: true
+    bond_timeout: 0.0
+    attempt_respawn_reconnection: true
+    respawn_reconnection_attempts: 5
+    node_names:
+      - controller_server
+      - planner_server
+      - bt_navigator
+      - behavior_server
+      - waypoint_follower
+      - velocity_smoother
+      - map_server
+      - amcl

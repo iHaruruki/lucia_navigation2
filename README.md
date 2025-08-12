@@ -31,7 +31,11 @@ Launch arguments:
 - rviz_config: custom rviz config file
 - namespace: robot namespace (empty by default)
 - use_sim_time: use simulated clock
-## Demo
+
+Tune `param/lucia.yaml` for your robot (velocities, radii, frames). If you omit it, `waffle.yaml` is used.
+
+If `navigate_to_pose` action server is unavailable, ensure `lifecycle_manager` section exists in your params file and autostart is true.
+
 ![Nav2 Video](media/nav2.gif)
 
 ## License
