@@ -1,7 +1,3 @@
-# Lucia custom robot Navigation2 parameter file.
-# Copy of waffle.yaml with modifications & TODO markers to tune for your robot.
-# Adjust: robot_radius, max_vel_x, acc/decel limits, tolerances, frame ids if different.
-
 amcl:
   ros__parameters:
     alpha1: 0.2
@@ -245,7 +241,7 @@ planner_server:
     expected_planner_frequency: 10.0
     planner_plugins: ["GridBased"]
     GridBased:
-      plugin: "nav2_navfn_planner/SmacPlanner2D"
+      plugin: "nav2_smac_planner/SmacPlanner2D"
       tolerance: 0.5
       use_astar: false
       allow_unknown: true
