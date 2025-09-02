@@ -137,7 +137,7 @@ local_costmap:
       height: 3
       resolution: 0.05
       robot_radius: 0.18   # TODO: set to Lucia footprint radius or use footprint instead
-      plugins: ["obstacle_layer", "voxel_layer", "inflation_layer"]
+      plugins: ["obstacle_layer", "voxel_layer", "inflation_layer", "stvl_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         inflation_radius: 0.8
@@ -175,6 +175,34 @@ local_costmap:
       static_layer:
         map_subscribe_transient_local: true
       always_send_full_costmap: true
+
+      stvl_layer:
+        plugin: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"
+        enabled: true
+        voxel_size: 0.05
+        voxel_decay: 10.0        # shorter decay near the robot
+        decay_model: 0
+        publish_voxel_map: false
+        observation_sources: depth_points
+        depth_points:
+          data_type: PointCloud2
+          topic: /camera/depth/points
+          marking: true
+          clearing: true
+          min_z: 0.1
+          max_z: 2.5
+          obstacle_range: 3.0
+          expected_update_rate: 0.0
+          filter: "voxel"
+          voxel_min_points: 0
+          clear_after_reading: true
+          vertical_fov_angle: 0.87
+          horizontal_fov_angle: 1.05
+          decay_acceleration: 15.0
+          model_type: 0
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.45
 
 global_costmap:
   global_costmap:
@@ -234,40 +262,32 @@ global_costmap:
       stvl_layer:
         plugin: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"
         enabled: true
-        voxel_decay: 15.
-        decay_model: 0
         voxel_size: 0.05
-        track_unknown_space: true
-        unknown_threshold: 15
-        mark_threshold: 0
-        update_footprint_enabled: true
-        combination_method: 1
-        origin_z: 0.0
+        voxel_decay: 30.0        # seconds (global map can keep info longer)
+        decay_model: 0           # 0=linear, 1=exponential
         publish_voxel_map: true
-        transform_tolerance: 0.2
-        mapping_mode: false
-        map_save_duration: 60.0
-        observation_sources: pointcloud
-        pointcloud:
+        combination_method: 1
+        observation_sources: depth_points
+        depth_points:
           data_type: PointCloud2
-          topic: /intel_realsense_r200_depth/points
+          topic: /camera/depth/points   # your depth/3D lidar topic
           marking: true
           clearing: true
-          obstacle_range: 3.0
-          min_obstacle_height: 0.0
-          max_obstacle_height: 2.0
+          min_z: 0.1
+          max_z: 2.5
+          obstacle_range: 4.0
           expected_update_rate: 0.0
-          observation_persistence: 0.0
-          inf_is_valid: false
-          filter: "voxel"
+          filter: "voxel"               # optional internal downsample
           voxel_min_points: 0
           clear_after_reading: true
-          max_z: 7.0
-          min_z: 0.1
-          vertical_fov_angle: 0.8745
-          horizontal_fov_angle: 1.048
+          # FOV for frustum-clearing (set to your sensor):
+          vertical_fov_angle: 0.87
+          horizontal_fov_angle: 1.05
           decay_acceleration: 15.0
-          model_type: 0
+          model_type: 0                 # pinhole
+        inflation_layer:
+          plugin: "nav2_costmap_2d::InflationLayer"
+          inflation_radius: 0.5
 
 map_server:
   ros__parameters:
