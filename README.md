@@ -2,8 +2,8 @@
 ### Node and Topic
 ## Dependency
 ```shell
-$ sudo apt install ros-humble-navigation2
-$ sudo apt install ros-humble-nav2-bringup
+sudo apt install ros-humble-navigation2    
+sudo apt install ros-humble-nav2-bringup
 ```
 ## Setup
 ```
