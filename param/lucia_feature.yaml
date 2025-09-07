@@ -47,12 +47,14 @@ amcl:
       z: 0.0
       yaw: 0.0
 
+# Behavior-Tree Navigator
 bt_navigator:
   ros__parameters:
     global_frame: map
     robot_base_frame: base_link
-    transform_tolerance: 0.5
-    filter_duration: 0.3
+    transform_tolerance: 0.3
+    filter_duration: 0.5  # Duration (secs) over which robot velocity should be smoothed.
+    introspection_mode: "disabled"  # The introspection mode for services and actions. Options are “disabled”, “metadata”, “contents”.
     default_nav_to_pose_bt_xml: "$(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml"
     default_nav_through_poses_bt_xml: "$(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml"
     always_reload_bt_xml: false
@@ -61,9 +63,13 @@ bt_navigator:
     path_blackboard_id: path
     navigators: ['navigate_to_pose', 'navigate_through_poses']
     navigate_to_pose:
-      plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
+      plugin: "nav2_bt_navigator/NavigateToPoseNavigator"  # In Iron and older versions, "/" was used instead of "::"
+      enable_groot_monitoring: false
+      groot_server_port: 1667
     navigate_through_poses:
-      plugin: "nav2_bt_navigator::NavigateThroughPosesNavigator"
+      plugin: "nav2_bt_navigator/NavigateThroughPosesNavigator"
+      enable_groot_monitoring: false
+      groot_server_port: 1669
 
 controller_server:
   ros__parameters:
@@ -125,85 +131,7 @@ controller_server:
       RotateToGoal.lookahead_time: -1.0
     enable_stamped_cmd_vel: true
 
-local_costmap:
-  local_costmap:
-    ros__parameters:
-      update_frequency: 5.0
-      publish_frequency: 2.0
-      global_frame: odom
-      robot_base_frame: base_link
-      rolling_window: true
-      width: 3
-      height: 3
-      resolution: 0.05
-      robot_radius: 0.18   # TODO: set to Lucia footprint radius or use footprint instead
-      plugins: ["obstacle_layer", "voxel_layer", "inflation_layer", "stvl_layer"]
-      inflation_layer:
-        plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.8
-        cost_scaling_factor: 3.0
-      obstacle_layer:
-        plugin: "nav2_costmap_2d::ObstacleLayer"
-        enabled: true
-        observation_sources: scan
-        scan:
-          topic: /scan
-          max_obstacle_height: 2.0
-          clearing: true
-          marking: true
-          data_type: "LaserScan"
-      voxel_layer:
-        plugin: "nav2_costmap_2d::VoxelLayer"
-        enabled: true
-        publish_voxel_map: true
-        origin_z: 0.0
-        z_resolution: 0.05
-        z_voxels: 16
-        max_obstacle_height: 2.0
-        mark_threshold: 0
-        observation_sources: scan
-        scan:
-          topic: /scan
-          max_obstacle_height: 2.0
-          clearing: true
-          marking: true
-          data_type: "LaserScan"
-          raytrace_max_range: 3.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
-          obstacle_min_range: 0.0
-      static_layer:
-        map_subscribe_transient_local: true
-      always_send_full_costmap: true
-
-      stvl_layer:
-        plugin: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"
-        enabled: true
-        voxel_size: 0.05
-        voxel_decay: 10.0        # shorter decay near the robot
-        decay_model: 0
-        publish_voxel_map: false
-        observation_sources: depth_points
-        depth_points:
-          data_type: PointCloud2
-          topic: /camera/depth/points
-          marking: true
-          clearing: true
-          min_z: 0.1
-          max_z: 2.5
-          obstacle_range: 3.0
-          expected_update_rate: 0.0
-          filter: "voxel"
-          voxel_min_points: 0
-          clear_after_reading: true
-          vertical_fov_angle: 0.87
-          horizontal_fov_angle: 1.05
-          decay_acceleration: 15.0
-          model_type: 0
-      inflation_layer:
-        plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.45
-
+# Costmap 2D
 global_costmap:
   global_costmap:
     ros__parameters:
@@ -215,7 +143,7 @@ global_costmap:
       robot_radius: 0.18   # TODO
       resolution: 0.05
       track_unknown_space: true
-      plugins: ["static_layer", "obstacle_layer", "voxel_layer", "inflation_layer", "stvl_layer"]
+      plugins: ["static_layer", "obstacle_layer", "voxel_layer", "inflation_layer"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
@@ -259,35 +187,57 @@ global_costmap:
         inflation_radius: 0.5
         cost_scaling_factor: 5.0
       always_send_full_costmap: true
-      stvl_layer:
-        plugin: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_link
+      rolling_window: true
+      width: 3
+      height: 3
+      resolution: 0.05
+      robot_radius: 0.18   # TODO: set to Lucia footprint radius or use footprint instead
+      plugins: ["obstacle_layer", "voxel_layer", "inflation_layer"]
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.8
+        cost_scaling_factor: 3.0
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
-        voxel_size: 0.05
-        voxel_decay: 30.0        # seconds (global map can keep info longer)
-        decay_model: 0           # 0=linear, 1=exponential
-        publish_voxel_map: true
-        combination_method: 1
-        observation_sources: depth_points
-        depth_points:
-          data_type: PointCloud2
-          topic: /camera/depth/points   # your depth/3D lidar topic
-          marking: true
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
           clearing: true
-          min_z: 0.1
-          max_z: 2.5
-          obstacle_range: 4.0
-          expected_update_rate: 0.0
-          filter: "voxel"               # optional internal downsample
-          voxel_min_points: 0
-          clear_after_reading: true
-          # FOV for frustum-clearing (set to your sensor):
-          vertical_fov_angle: 0.87
-          horizontal_fov_angle: 1.05
-          decay_acceleration: 15.0
-          model_type: 0                 # pinhole
-        inflation_layer:
-          plugin: "nav2_costmap_2d::InflationLayer"
-          inflation_radius: 0.5
+          marking: true
+          data_type: "LaserScan"
+      voxel_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: true
+        publish_voxel_map: true
+        origin_z: 0.0
+        z_resolution: 0.05
+        z_voxels: 16
+        max_obstacle_height: 2.0
+        mark_threshold: 0
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: true
+          marking: true
+          data_type: "LaserScan"
+          raytrace_max_range: 3.0
+          raytrace_min_range: 0.0
+          obstacle_max_range: 2.5
+          obstacle_min_range: 0.0
+      static_layer:
+        map_subscribe_transient_local: true
+      always_send_full_costmap: true
 
 map_server:
   ros__parameters:
