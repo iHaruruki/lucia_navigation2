@@ -25,7 +25,7 @@ amcl:
     recovery_alpha_fast: 0.0
     recovery_alpha_slow: 0.0
     resample_interval: 1
-    robot_model_type: "nav2_amcl::DifferentialMotionModel"  # TODO: change to OmnidirectionalMotionModel if omni
+    robot_model_type: "nav2_amcl/DifferentialMotionModel"  # TODO: change to OmnidirectionalMotionModel if omni
     save_pose_rate: 0.5
     sigma_hit: 0.2
     tf_broadcast: true
@@ -82,16 +82,16 @@ controller_server:
     goal_checker_plugins: ["goal_checker"]
     controller_plugins: ["FollowPath"]
     progress_checker:
-      plugin: "nav2_controller::SimpleProgressChecker"
+      plugin: "nav2_controller/SimpleProgressChecker"
       required_movement_radius: 0.1
       movement_time_allowance: 10.0
     goal_checker:
       stateful: true
-      plugin: "nav2_controller::SimpleGoalChecker"
+      plugin: "nav2_controller/SimpleGoalChecker"
       xy_goal_tolerance: 0.20  # TODO: tune
       yaw_goal_tolerance: 0.20 # TODO: tune
     FollowPath:
-      plugin: "dwb_core::DWBLocalPlanner"
+      plugin: "dwb_core/DWBLocalPlanner"
       debug_trajectory_details: false
       min_vel_x: -0.10        # TODO: tune
       min_vel_y: 0.0
@@ -143,30 +143,10 @@ global_costmap:
       robot_radius: 0.18   # TODO
       resolution: 0.05
       track_unknown_space: true
-      plugins: ["static_layer", "obstacle_layer", "voxel_layer", "inflation_layer"]
+      plugins: ["static_layer", "obstacle_layer", "denoise_layer", "inflation_layer"]
       obstacle_layer:
-        plugin: "nav2_costmap_2d::ObstacleLayer"
+        plugin: "nav2_costmap_2d/ObstacleLayer"
         enabled: true
-        observation_sources: scan
-        scan:
-          topic: /scan
-          max_obstacle_height: 2.0
-          clearing: true
-          marking: true
-          data_type: "LaserScan"
-          raytrace_max_range: 3.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
-          obstacle_min_range: 0.0
-      voxel_layer:
-        plugin: "nav2_costmap_2d::VoxelLayer"
-        enabled: true
-        publish_voxel_map: true
-        origin_z: 0.0
-        z_resolution: 0.05
-        z_voxels: 16
-        max_obstacle_height: 2.0
-        mark_threshold: 0
         observation_sources: scan
         scan:
           topic: /scan
@@ -179,11 +159,34 @@ global_costmap:
           obstacle_max_range: 2.5
           obstacle_min_range: 0.0
       static_layer:
-        plugin: "nav2_costmap_2d::StaticLayer"
+        plugin: "nav2_costmap_2d/StaticLayer"
         map_subscribe_transient_local: true
         transform_tolerance: 0.1
+      # voxel_layer:
+      #   plugin: "nav2_costmap_2d/VoxelLayer"
+      #   enabled: true
+      #   publish_voxel_map: true
+      #   origin_z: 0.0
+      #   z_resolution: 0.05
+      #   z_voxels: 16
+      #   max_obstacle_height: 2.0
+      #   mark_threshold: 0
+      #   observation_sources: scan
+      #   scan:
+      #     topic: /scan
+      #     max_obstacle_height: 2.0
+      #     clearing: true
+      #     marking: true
+      #     data_type: "LaserScan"
+      #     raytrace_max_range: 3.0
+      #     raytrace_min_range: 0.0
+      #     obstacle_max_range: 2.5
+      #     obstacle_min_range: 0.0
+      denoise_layer:
+        plugin: "nav2_costmap_2d/DenoiseLayer"
+        enabled: true
       inflation_layer:
-        plugin: "nav2_costmap_2d::InflationLayer"
+        plugin: "nav2_costmap_2d/InflationLayer"
         inflation_radius: 0.5
         cost_scaling_factor: 5.0
       always_send_full_costmap: true
@@ -200,13 +203,13 @@ local_costmap:
       height: 3
       resolution: 0.05
       robot_radius: 0.18   # TODO: set to Lucia footprint radius or use footprint instead
-      plugins: ["obstacle_layer", "voxel_layer", "inflation_layer"]
+      plugins: ["obstacle_layer", "denoise_layer", "inflation_layer"]
       inflation_layer:
-        plugin: "nav2_costmap_2d::InflationLayer"
+        plugin: "nav2_costmap_2d/InflationLayer"
         inflation_radius: 0.8
         cost_scaling_factor: 3.0
       obstacle_layer:
-        plugin: "nav2_costmap_2d::ObstacleLayer"
+        plugin: "nav2_costmap_2d/ObstacleLayer"
         enabled: true
         observation_sources: scan
         scan:
@@ -215,26 +218,29 @@ local_costmap:
           clearing: true
           marking: true
           data_type: "LaserScan"
-      voxel_layer:
-        plugin: "nav2_costmap_2d::VoxelLayer"
+      # voxel_layer:
+      #   plugin: "nav2_costmap_2d::VoxelLayer"
+      #   enabled: true
+      #   publish_voxel_map: true
+      #   origin_z: 0.0
+      #   z_resolution: 0.05
+      #   z_voxels: 16
+      #   max_obstacle_height: 2.0
+      #   mark_threshold: 0
+      #   observation_sources: scan
+      #   scan:
+      #     topic: /scan
+      #     max_obstacle_height: 2.0
+      #     clearing: true
+      #     marking: true
+      #     data_type: "LaserScan"
+      #     raytrace_max_range: 3.0
+      #     raytrace_min_range: 0.0
+      #     obstacle_max_range: 2.5
+      #     obstacle_min_range: 0.0
+      denoise_layer:
+        plugin: "nav2_costmap_2d/DenoiseLayer"
         enabled: true
-        publish_voxel_map: true
-        origin_z: 0.0
-        z_resolution: 0.05
-        z_voxels: 16
-        max_obstacle_height: 2.0
-        mark_threshold: 0
-        observation_sources: scan
-        scan:
-          topic: /scan
-          max_obstacle_height: 2.0
-          clearing: true
-          marking: true
-          data_type: "LaserScan"
-          raytrace_max_range: 3.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
-          obstacle_min_range: 0.0
       static_layer:
         map_subscribe_transient_local: true
       always_send_full_costmap: true
