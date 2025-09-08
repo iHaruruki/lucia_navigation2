@@ -1,3 +1,4 @@
+# AMCL (Adaptive Monte Carlo Localization) for 2D pose estimation
 amcl:
   ros__parameters:
     alpha1: 0.2
@@ -13,7 +14,7 @@ amcl:
     global_frame_id: "map"
     lambda_short: 0.1
     laser_likelihood_max_dist: 2.0
-    laser_max_range: 100.0
+    laser_max_range: 30.0
     laser_min_range: -1.0
     laser_model_type: "likelihood_field"
     max_beams: 60
@@ -30,15 +31,15 @@ amcl:
     sigma_hit: 0.2
     tf_broadcast: true
     transform_tolerance: 0.5
-    update_min_a: 0.2
-    update_min_d: 0.25
+    update_min_a: 0.15
+    update_min_d: 0.2
     z_hit: 0.5
     z_max: 0.05
     z_rand: 0.5
     z_short: 0.05
     scan_topic: scan
     map_topic: map
-    set_initial_pose: false
+    set_initial_pose: false # set true if you want to manually set initial pose
     always_reset_initial_pose: false
     first_map_only: false
     initial_pose:
@@ -71,15 +72,16 @@ bt_navigator:
       enable_groot_monitoring: false
       groot_server_port: 1669
 
+# Controller Server
 controller_server:
   ros__parameters:
-    controller_frequency: 10.0
+    controller_frequency: 20.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.001
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
-    progress_checker_plugins: ["progress_checker"]
-    goal_checker_plugins: ["goal_checker"]
+    progress_checker_plugin: ["progress_checker"]
+    goal_checker_plugin: ["goal_checker"]
     controller_plugins: ["FollowPath"]
     progress_checker:
       plugin: "nav2_controller/SimpleProgressChecker"
@@ -88,34 +90,34 @@ controller_server:
     goal_checker:
       stateful: true
       plugin: "nav2_controller/SimpleGoalChecker"
-      xy_goal_tolerance: 0.20  # TODO: tune
-      yaw_goal_tolerance: 0.20 # TODO: tune
+      xy_goal_tolerance: 0.30  
+      yaw_goal_tolerance: 0.30 
     FollowPath:
       plugin: "dwb_core/DWBLocalPlanner"
       debug_trajectory_details: false
-      min_vel_x: -0.10        # TODO: tune
-      min_vel_y: 0.0
-      max_vel_x: 0.40         # TODO: Lucia linear speed
-      max_vel_y: 0.0
-      max_vel_theta: 1.5      # TODO: angular speed
-      min_speed_xy: 0.0
+      min_vel_x: -0.10
+      min_vel_y: -0.20
+      max_vel_x: 0.30
+      max_vel_y: 0.20
+      max_vel_theta: 0.5
+      min_speed_xy: -0.40
       max_speed_xy: 0.40
       min_speed_theta: 0.0
-      acc_lim_x: 1.5          # TODO: tune accel
-      acc_lim_y: 0.0
-      acc_lim_theta: 2.0      # TODO
-      decel_lim_x: -1.5       # TODO
-      decel_lim_y: 0.0
-      decel_lim_theta: -2.0   # TODO
+      acc_lim_x: 1.5
+      acc_lim_y: 1.5
+      acc_lim_theta: 2.0
+      decel_lim_x: -1.5
+      decel_lim_y: -1.5
+      decel_lim_theta: -2.0
       vx_samples: 20
       vy_samples: 0
       vtheta_samples: 40
-      sim_time: 1.5
+      sim_time: 3.0
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.5
       xy_goal_tolerance: 0.05
-      trans_stopped_velocity: 0.25
+      trans_stopped_velocity: 0.2
       short_circuit_trajectory_evaluation: true
       stateful: true
       critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
@@ -140,11 +142,15 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       transform_tolerance: 0.5
-      robot_radius: 0.18   # TODO
+      robot_radius: 0.3   # radius set and used, so no footprint points
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "denoise_layer", "inflation_layer"]
-      obstacle_layer:
+      static_layer: # 地図の静的障害物
+        plugin: "nav2_costmap_2d/StaticLayer"
+        map_subscribe_transient_local: true
+        transform_tolerance: 0.1
+      obstacle_layer: # センサで障害物を反映
         plugin: "nav2_costmap_2d/ObstacleLayer"
         enabled: true
         observation_sources: scan
@@ -158,11 +164,7 @@ global_costmap:
           raytrace_min_range: 0.0
           obstacle_max_range: 2.5
           obstacle_min_range: 0.0
-      static_layer:
-        plugin: "nav2_costmap_2d/StaticLayer"
-        map_subscribe_transient_local: true
-        transform_tolerance: 0.1
-      # voxel_layer:
+      # voxel_layer:  # 3D点群で上方向も考慮したいときに使う
       #   plugin: "nav2_costmap_2d/VoxelLayer"
       #   enabled: true
       #   publish_voxel_map: true
@@ -182,32 +184,30 @@ global_costmap:
       #     raytrace_min_range: 0.0
       #     obstacle_max_range: 2.5
       #     obstacle_min_range: 0.0
-      denoise_layer:
+      # range_layer:  #a plugin that processes sonar, IR, or other 1-D sensors for collision avoidance.
+      denoise_layer: # ノイズ除去
         plugin: "nav2_costmap_2d/DenoiseLayer"
         enabled: true
       inflation_layer:
         plugin: "nav2_costmap_2d/InflationLayer"
-        inflation_radius: 0.5
+        inflation_radius: 0.4
         cost_scaling_factor: 5.0
       always_send_full_costmap: true
 
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 5.0
-      publish_frequency: 2.0
+      update_frequency: 10.0
+      publish_frequency: 5.0
       global_frame: odom
       robot_base_frame: base_link
       rolling_window: true
-      width: 3
-      height: 3
+      width: 6.0  # ローカルコストマップの表示・計算範囲（m）
+      height: 6.0 # ローカルコストマップの表示・計算範囲（m）
       resolution: 0.05
-      robot_radius: 0.18   # TODO: set to Lucia footprint radius or use footprint instead
+      track_unknown_space: false
+      robot_radius: 0.3
       plugins: ["obstacle_layer", "denoise_layer", "inflation_layer"]
-      inflation_layer:
-        plugin: "nav2_costmap_2d/InflationLayer"
-        inflation_radius: 0.8
-        cost_scaling_factor: 3.0
       obstacle_layer:
         plugin: "nav2_costmap_2d/ObstacleLayer"
         enabled: true
@@ -241,23 +241,39 @@ local_costmap:
       denoise_layer:
         plugin: "nav2_costmap_2d/DenoiseLayer"
         enabled: true
-      static_layer:
-        map_subscribe_transient_local: true
-      always_send_full_costmap: true
+      inflation_layer:
+        plugin: "nav2_costmap_2d/InflationLayer"
+        inflation_radius: 0.4
+        cost_scaling_factor: 3.0
+      always_send_full_costmap: false
 
 map_server:
   ros__parameters:
     yaml_filename: "map.yaml"
+    topic_name: "map"
+    frame_id: "map"
+    introspection_mode: "disabled"
 
 planner_server:
   ros__parameters:
-    expected_planner_frequency: 10.0
+    expected_planner_frequency: 20.0
     planner_plugins: ["GridBased"]
     GridBased:
-      plugin: "nav2_smac_planner/SmacPlanner2D"
-      tolerance: 0.5
-      use_astar: false
-      allow_unknown: true
+      plugin: "nav2_navfn_planner/SmacPlanner2D"
+      tolerance: 0.3                        # tolerance for planning if unable to reach exact pose, in meters
+      downsample_costmap: false             # whether or not to downsample the map
+      downsampling_factor: 1                # multiplier for the resolution of the costmap layer (e.g. 2 on a 5cm costmap would be 10cm)
+      allow_unknown: true                   # allow traveling in unknown space
+      max_iterations: 1000000               # maximum total iterations to search for before failing (in case unreachable), set to -1 to disable
+      max_on_approach_iterations: 1000      # maximum number of iterations to attempt to reach goal once in tolerance
+      max_planning_time: 1.5                # max time in s for planner to plan, smooth
+      cost_travel_multiplier: 2.0           # Cost multiplier to apply to search to steer away from high cost areas. Larger values will place in the center of aisles more exactly (if non-`FREE` cost potential field exists) but take slightly longer to compute. To optimize for speed, a value of 1.0 is reasonable. A reasonable tradeoff value is 2.0. A value of 0.0 effective disables steering away from obstacles and acts like a naive binary search A*.
+      use_final_approach_orientation: false # Whether to set the final path pose at the goal's orientation to the requested orientation (false) or in line with the approach angle so the robot doesn't rotate to heading (true)
+      smoother:
+        max_iterations: 1000
+        w_smooth: 0.3
+        w_data: 0.2
+        tolerance: 1.0e-10
 
 behavior_server:
   ros__parameters:
@@ -313,19 +329,125 @@ velocity_smoother:
     use_realtime_priority: false
     enable_stamped_cmd_vel: true
 
+smoother_server:
+  ros__parameters:
+    costmap_topic: global_costmap/costmap_raw
+    footprint_topic: global_costmap/published_footprint
+    robot_base_frame: base_link
+    transform_tolerance: 0.1
+    smoother_plugins: ["simple_smoother"]
+    simple_smoother:
+      plugin: "nav2_smoother::SimpleSmoother"
+      tolerance: 1.0e-10
+      do_refinement: True
+
 # Lifecycle manager ensures all Nav2 nodes transition to ACTIVE automatically.
 lifecycle_manager:
   ros__parameters:
     autostart: true
-    bond_timeout: 0.0
+    node_names: ['controller_server', 'planner_server', 'bt_navigator', 'behavior_server', 'waypoint_follower', 'velocity_smoother', 'map_server', 'amcl']
+    bond_timeout: 4.0
     attempt_respawn_reconnection: true
-    respawn_reconnection_attempts: 5
-    node_names:
-      - controller_server
-      - planner_server
-      - bt_navigator
-      - behavior_server
-      - waypoint_follower
-      - velocity_smoother
-      - map_server
-      - amcl
+    bond_respawn_max_duration: 10.0
+    introspection_mode: "disabled"
+
+# Docking Server
+# docking_server:
+#   ros__parameters:
+#     controller_frequency: 50.0
+#     initial_perception_timeout: 5.0
+#     wait_charge_timeout: 5.0
+#     dock_approach_timeout: 30.0
+#     undock_linear_tolerance: 0.05
+#     undock_angular_tolerance: 0.1
+#     max_retries: 3
+#     base_frame: "base_link"
+#     fixed_frame: "odom"
+#     odom_topic: "odom"
+#     odom_duration: 0.3
+#     dock_backwards: false  # Deprecated, use dock_direction in plugin
+#     dock_prestaging_tolerance: 0.5
+#     introspection_mode: "disabled"
+
+#     # Types of docks
+#     dock_plugins: ['nova_carter_dock']
+#     nova_carter_dock:
+#       plugin: 'opennav_docking::SimpleChargingDock'  # Also 'opennav_docking::SimpleNonChargingDock'
+#       docking_threshold: 0.05
+#       staging_x_offset: -0.7
+#       use_external_detection_pose: true
+#       use_battery_status: false # true
+#       use_stall_detection: false
+#       rotate_to_dock: false
+
+#       external_detection_timeout: 1.0
+#       external_detection_translation_x: -0.18
+#       external_detection_translation_y: 0.0
+#       external_detection_rotation_roll: -1.57
+#       external_detection_rotation_pitch: -1.57
+#       external_detection_rotation_yaw: 0.0
+#       filter_coef: 0.1
+#       dock_direction: "forward" # "backward"
+
+#     # Dock instances
+#     docks: ['home_dock']
+#     home_dock:
+#       type: 'nova_carter_dock'
+#       frame: map
+#       pose: [0.0, 0.0, 0.0]
+#       id: 'c67f50cb-e152-4720-85cc-5eb20bd85ce8'
+
+#     controller:
+#       k_phi: 3.0
+#       k_delta: 2.0
+#       v_linear_min: 0.15
+#       v_linear_max: 0.15
+#       v_angular_max: 0.75
+#       slowdown_radius: 0.25
+#       rotate_to_heading_angular_vel: 1.0
+#       rotate_to_heading_max_angular_accel: 3.2
+#       use_collision_detection: true
+#       costmap_topic: "local_costmap/costmap_raw"
+#       footprint_topic: "local_costmap/published_footprint"
+#       transform_tolerance: 0.1
+#       projection_time: 1.0
+#       simulation_time_step: 0.1
+#       dock_collision_threshold: 0.3
+
+# Route Server
+# route_server:
+#   ros__parameters:
+
+#     base_frame: "base_link"                       # Robot's base frame
+#     route_frame: "map"                            # Global reference frame
+#     path_density: 0.05                            # Density of points for generating the dense nav_msgs/Path from route (m)
+#     max_iterations: 0                             # Maximum number of search iterations, if 0, uses maximum possible
+#     max_planning_time: 2.0                        # Maximum planning time (seconds)
+#     smoothing_corners: true                       # Whether to smooth corners formed by adjacent edges or not
+#     smoothing_radius: 1.0                         # Radius of corner to fit into the corner
+
+#     graph_file_loader: "GeoJsonGraphFileLoader"   # Name of default file loader
+#       plugin: nav2_route::GeoJsonGraphFileLoader  # file loader plugin to use
+#     graph_filepath: ""                            # file path to graph to use
+
+#     edge_cost_functions: ["DistanceScorer", "DynamicEdgesScorer"]  # Edge scoring cost functions to use
+#     DistanceScorer:
+#       plugin: "nav2_route::DistanceScorer"
+#     DynamicEdgesScorer:
+#       plugin: "nav2_route::DynamicEdgesScorer"
+
+#     operations: ["AdjustSpeedLimit", "ReroutingService"] # Route operations plugins to use
+#     AdjustSpeedLimit:
+#       plugin: "nav2_route::AdjustSpeedLimit"
+#     ReroutingService:
+#       plugin: "nav2_route::ReroutingService"
+
+#     tracker_update_rate: 50.0                     # Rate at which to check the status of path tracking
+#     aggregate_blocked_ids: false                  # Whether to aggregate the blocked IDs reported by route operations over the lifespan of the navigation request or only use the currently blocked IDs.
+#     boundary_radius_to_achieve_node: 1.0          # Radius (m) near boundary nodes (e.g. start/end) to enable evaluation of achievement metric
+#     radius_to_achieve_node: 2.0                   # Radius (m) near route nodes as preliminary condition for evaluation of achievement metric
+
+#     max_prune_dist_from_edge: 8.0                       # Max distance from an edge to consider pruning it as in-progress (e.g. if we're too far away from the edge, its nonsensical to prune it)
+#     min_prune_dist_from_goal: 0.15                      # Min distance from goal node away from goal pose to consider goal node pruning as considering it as being passed (in case goal pose is very close to a goal node, but not exact)
+#     min_prune_dist_from_start: 0.10                     # Min distance from start node away from start pose to consider start node pruning as considering it as being passed (in case start pose is very close to a start node, but not exact)
+#     prune_goal: true                              # Whether pruning the goal nodes from the route due to being past the goal pose requested is possible (pose requests only)
