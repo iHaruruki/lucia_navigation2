@@ -26,7 +26,7 @@ amcl:
     recovery_alpha_fast: 0.0
     recovery_alpha_slow: 0.0
     resample_interval: 1
-    robot_model_type: "nav2_amcl::OmnidirectionalMotionModel"  # TODO: change to OmnidirectionalMotionModel if omni
+    rrobot_model_type: "nav2_amcl::OmniMotionModel"  # TODO: change to OmnidirectionalMotionModel if omni
     save_pose_rate: 0.5
     sigma_hit: 0.2
     tf_broadcast: true
@@ -202,8 +202,8 @@ local_costmap:
       global_frame: odom
       robot_base_frame: base_link
       rolling_window: true
-      width: 6.0  # ローカルコストマップの表示・計算範囲（m）
-      height: 6.0 # ローカルコストマップの表示・計算範囲（m）
+      width: 6  # ローカルコストマップの表示・計算範囲（m）
+      height: 6 # ローカルコストマップの表示・計算範囲（m）
       resolution: 0.05
       track_unknown_space: false
       robot_radius: 0.3
