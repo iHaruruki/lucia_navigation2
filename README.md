@@ -20,10 +20,10 @@ ros2 launch lucia_controller bringup.launch.py
 ```
 ### Run Navigation2
 ```shell
-ros2 launch lucia_navigation2 navigation2.launch.py \
-  map:=$HOME/ros2_ws/src/lucia_navigation2/map/map.yaml \
-  params_file:=$HOME/ros2_ws/src/lucia_navigation2/param/lucia.yaml \
-  use_sim_time:=false
+ros2 launch lucia_navigation2 navigation2.launch.py 
+map:=$HOME/ros2_ws/maps/map.yaml 
+params_file:=$HOME/ros2_ws/src/lucia_navigation2/param/lucia.yaml 
+use_sim_time:=false
 ```
 Launch arguments:
 - map: path to map yaml
