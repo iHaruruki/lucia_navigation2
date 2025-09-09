@@ -464,7 +464,7 @@ Visualization Manager:
     - Class: rviz_common/Group
       Displays:
         - Class: rviz_default_plugins/Image
-          Enabled: true
+          Enabled: false
           Max Value: 1
           Median window: 5
           Min Value: 0
@@ -477,7 +477,7 @@ Visualization Manager:
             Reliability Policy: Reliable
             Value: /intel_realsense_r200_depth/image_raw
           Value: true
-        - Alpha: 1
+        - Alpha: 1.0
           Autocompute Intensity Bounds: true
           Autocompute Value Bounds:
             Max Value: 10
