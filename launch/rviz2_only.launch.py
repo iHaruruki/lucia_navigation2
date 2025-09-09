@@ -17,21 +17,19 @@ def generate_launch_description():
             'rviz',
             'tb3_navigation2.rviz'))
 
-    # GLSL エラー対策用の環境変数設定
-    set_qt_opengl = SetEnvironmentVariable(
-        name='QT_OPENGL',
-        value='software'
-    )
-    
-    set_mesa_gl_version = SetEnvironmentVariable(
-        name='MESA_GL_VERSION_OVERRIDE',
-        value='3.3'
-    )
-    
-    set_mesa_glsl_version = SetEnvironmentVariable(
-        name='MESA_GLSL_VERSION_OVERRIDE',
-        value='330'
-    )
+    # AMD Mesa GLSL error workaround environment variables
+    amd_mesa_env_vars = {
+        'QT_OPENGL': 'software',
+        'QT_QUICK_BACKEND': 'software',
+        'LIBGL_ALWAYS_SOFTWARE': '1',
+        'GALLIUM_DRIVER': 'llvmpipe',
+        'MESA_LOADER_DRIVER_OVERRIDE': 'llvmpipe',
+        'MESA_GL_VERSION_OVERRIDE': '4.5',
+        'MESA_GLSL_VERSION_OVERRIDE': '450',
+        'AMD_DEBUG': 'nohyperz',
+        'RADV_DEBUG': 'noshaderballot',
+        'QT_LOGGING_RULES': 'qt.qpa.gl.debug=false'
+    }
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -44,10 +42,9 @@ def generate_launch_description():
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
 
-        # GLSL エラー対策用の環境変数
-        set_qt_opengl,
-        set_mesa_gl_version,
-        set_mesa_glsl_version,
+        # Set AMD Mesa workaround environment variables
+        *[SetEnvironmentVariable(name=key, value=value) 
+          for key, value in amd_mesa_env_vars.items()],
 
         Node(
             package='rviz2',
@@ -56,16 +53,9 @@ def generate_launch_description():
             arguments=[
                 '-d', rviz_config_dir,
                 '--ros-args', 
-                '--log-level', 'warn'
+                '--log-level', 'error'  # Reduce log verbosity
             ],
             parameters=[{'use_sim_time': use_sim_time}],
-            additional_env={
-                'LIBGL_ALWAYS_SOFTWARE': '1',
-                'QT_QUICK_BACKEND': 'software',
-                'QT_LOGGING_RULES': 'qt.qpa.gl.debug=true',
-                'QT_OPENGL': 'software',
-                'MESA_GL_VERSION_OVERRIDE': '3.3',
-                'MESA_GLSL_VERSION_OVERRIDE': '330'
-            },
+            additional_env=amd_mesa_env_vars,
             output='screen'),
     ])
