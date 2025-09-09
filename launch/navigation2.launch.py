@@ -43,24 +43,10 @@ def generate_launch_description():
             'param',
             'waffle.yaml'))
 
-    #param_file_name = 'waffle.yaml'
-    # if ROS_DISTRO == 'humble':
-    #     param_dir = LaunchConfiguration(
-    #         'params_file',
-    #         default=os.path.join(
-    #             get_package_share_directory('turtlebot3_navigation2'),
-    #             'param',
-    #             ROS_DISTRO,
-    #             param_file_name))
-    # else:
-    #     param_dir = LaunchConfiguration(
-    #         'params_file',
-    #         default=os.path.join(
-    #             get_package_share_directory('turtlebot3_navigation2'),
-    #             'param',
-    #             param_file_name))
-
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
+    
+    # RViz2 launch file
+    rviz2_launch_file_dir = os.path.join(get_package_share_directory('lucia_navigation2'), 'launch')
 
     rviz_config_dir = os.path.join(
         get_package_share_directory('lucia_navigation2'),
@@ -83,6 +69,7 @@ def generate_launch_description():
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
 
+        # Navigation2 の起動
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
             launch_arguments={
@@ -91,11 +78,11 @@ def generate_launch_description():
                 'params_file': param_dir}.items(),
         ),
 
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            arguments=['-d', rviz_config_dir],
-            parameters=[{'use_sim_time': use_sim_time}],
-            output='screen'),
+        # RViz2 の起動（別のlaunchファイルから）
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([rviz2_launch_file_dir, '/rviz2_only.launch.py']),
+            launch_arguments={
+                'use_sim_time': use_sim_time,
+                'rviz_config': rviz_config_dir}.items(),
+        ),
     ])
