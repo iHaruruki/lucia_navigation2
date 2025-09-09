@@ -60,6 +60,8 @@ def generate_launch_description():
             ],
             parameters=[{'use_sim_time': use_sim_time}],
             additional_env={
+                'LIBGL_ALWAYS_SOFTWARE': '1',
+                'QT_QUICK_BACKEND': 'software',
                 'QT_LOGGING_RULES': 'qt.qpa.gl.debug=true',
                 'QT_OPENGL': 'software',
                 'MESA_GL_VERSION_OVERRIDE': '3.3',
