@@ -345,14 +345,14 @@ smoother_server:
       do_refinement: True
 
 # Lifecycle manager ensures all Nav2 nodes transition to ACTIVE automatically.
-lifecycle_manager:
-  ros__parameters:
-    autostart: true
-    node_names: ['controller_server', 'planner_server', 'bt_navigator', 'behavior_server', 'waypoint_follower', 'velocity_smoother', 'map_server', 'amcl']
-    bond_timeout: 4.0
-    attempt_respawn_reconnection: true
-    bond_respawn_max_duration: 10.0
-    introspection_mode: "disabled"
+# lifecycle_manager:
+#   ros__parameters:
+#     autostart: true
+#     node_names: ['controller_server', 'planner_server', 'bt_navigator', 'behavior_server', 'waypoint_follower', 'velocity_smoother', 'map_server', 'amcl']
+#     bond_timeout: 4.0
+#     attempt_respawn_reconnection: true
+#     bond_respawn_max_duration: 10.0
+#     introspection_mode: "disabled"
 
 # Docking Server
 # docking_server:
