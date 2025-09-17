@@ -35,13 +35,13 @@ def generate_launch_description():
         default=os.path.join(
             get_package_share_directory('lucia_navigation2'),
             'map',
-            'map.yaml'))
+            'map_e3.yaml'))
     param_dir = LaunchConfiguration(
         'params_file',
         default=os.path.join(
             get_package_share_directory('lucia_navigation2'),
             'param',
-            'waffle.yaml'))
+            'lucia.yaml'))
 
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
     
