@@ -253,8 +253,8 @@ map_server:
 planner_server:
   ros__parameters:
     expected_planner_frequency: 20.0
-    planner_plugins: ["SmacPlanner2D"]
-    SmacPlanner2D:
+    planner_plugins: ["GridBased"]
+    GridBased:
       plugin: "nav2_smac_planner/SmacPlanner2D"
       tolerance: 0.3                        # tolerance for planning if unable to reach exact pose, in meters
       downsample_costmap: false             # whether or not to downsample the map
