@@ -26,7 +26,7 @@ amcl:
     recovery_alpha_fast: 0.0
     recovery_alpha_slow: 0.0
     resample_interval: 1
-    rrobot_model_type: "nav2_amcl::OmniMotionModel"  # TODO: change to OmnidirectionalMotionModel if omni
+    robot_model_type: "nav2_amcl::OmniMotionModel"  # TODO: change to OmnidirectionalMotionModel if omni
     save_pose_rate: 0.5
     sigma_hit: 0.2
     tf_broadcast: true
@@ -260,7 +260,7 @@ planner_server:
   ros__parameters:
     expected_planner_frequency: 20.0
     planner_plugins: ["SmacPlanner2D"]
-    GridBased:
+    SmacPlanner2D:
       plugin: "nav2_smac_planner/SmacPlanner2D"
       tolerance: 0.3                        # tolerance for planning if unable to reach exact pose, in meters
       downsample_costmap: false             # whether or not to downsample the map
