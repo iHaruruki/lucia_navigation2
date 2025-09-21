@@ -6,7 +6,7 @@ sudo apt install ros-humble-navigation2
 sudo apt install ros-humble-nav2-bringup
 ```
 ## Setup
-```
+```shell
 $ cd ~/ros2_ws/src  #Go to ros workspace
 $ git clone https://github.com/iHaruruki/lucia_nav2.git #clone this package
 $ cd ~/ros2_ws
