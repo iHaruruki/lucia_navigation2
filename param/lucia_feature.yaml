@@ -114,9 +114,11 @@ controller_server:
       movement_time_allowance: 10.0
     goal_checker:
       stateful: true
-      plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
+      plugin: "nav2_controller::StoppedGoalChecker"
+      xy_goal_tolerance: 0.2
       yaw_goal_tolerance: 0.1
+      trans_stopped_velocity: 0.05
+      rot_stopped_velocity: 0.10
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: true
@@ -135,11 +137,11 @@ controller_server:
       acc_lim_theta: 1.0
       decel_lim_x: -1.8
       decel_lim_y: 0.0
-      decel_lim_theta: -1.0
+      decel_lim_theta: -1.5
       vx_samples: 20
       vy_samples: 0
       vtheta_samples: 40
-      sim_time: 1.5
+      sim_time: 1.0
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.5
@@ -149,14 +151,14 @@ controller_server:
       stateful: true
       critics: ["RotateToGoal", "Oscillation", "ObstacleFootprint", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
       ObstacleFootprint.scale: 0.05
-      PathAlign.scale: 32.0
+      PathAlign.scale: 28.0
       PathAlign.forward_point_distance: 0.1
       GoalAlign.scale: 24.0
       GoalAlign.forward_point_distance: 0.1
       PathDist.scale: 32.0
       GoalDist.scale: 24.0
       RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 5.0
+      RotateToGoal.slowing_factor: 4.0
       RotateToGoal.lookahead_time: -1.0
     enable_stamped_cmd_vel: true
 
@@ -168,8 +170,8 @@ local_costmap:
       global_frame: odom
       robot_base_frame: base_link
       rolling_window: true
-      width: 3
-      height: 3
+      width: 5
+      height: 5
       resolution: 0.05
       robot_radius: 0.3
       plugins: ["obstacle_layer", "voxel_layer", "inflation_layer"]
@@ -263,7 +265,7 @@ global_costmap:
         transform_tolerance: 0.1
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.5
+        inflation_radius: 0.8
         cost_scaling_factor: 5.0
       always_send_full_costmap: true
 
