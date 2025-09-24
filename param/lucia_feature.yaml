@@ -110,8 +110,8 @@ controller_server:
     controller_plugins: ["FollowPath"]
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      required_movement_radius: 0.1
-      movement_time_allowance: 5.0
+      required_movement_radius: 0.05
+      movement_time_allowance: 10.0
     goal_checker:
       stateful: true
       plugin: "nav2_controller::StoppedGoalChecker"
@@ -129,7 +129,7 @@ controller_server:
       max_vel_theta: 0.8
       min_speed_xy: 0.0
       max_speed_xy: 0.3
-      min_speed_theta: 0.1
+      min_speed_theta: 0.05
       # Add high threshold velocity for turtlebot 3 issue.
       # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
       acc_lim_x: 0.1
@@ -146,6 +146,7 @@ controller_server:
       angular_granularity: 0.025
       transform_tolerance: 0.5
       xy_goal_tolerance: 0.05
+      min_approach_linear_vel: 0.07
       trans_stopped_velocity: 0.1
       short_circuit_trajectory_evaluation: true
       stateful: true
@@ -160,6 +161,8 @@ controller_server:
       RotateToGoal.scale: 32.0
       RotateToGoal.slowing_factor: 4.0
       RotateToGoal.lookahead_time: -1.0
+      publish_cost_grid: true
+      visualize: true
     enable_stamped_cmd_vel: true
 
 local_costmap:
@@ -177,8 +180,8 @@ local_costmap:
       plugins: ["obstacle_layer", "voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.8
-        cost_scaling_factor: 3.5
+        inflation_radius: 0.3
+        cost_scaling_factor: 2.5
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
@@ -324,9 +327,9 @@ behavior_server:
     robot_base_frame: base_link
     transform_timeout: 0.1
     simulate_ahead_time: 2.0
-    max_rotational_vel: 1.0
-    min_rotational_vel: 0.4
-    rotational_acc_lim: 3.2
+    max_rotational_vel: 0.8
+    min_rotational_vel: -0.8
+    rotational_acc_lim: 2.0
     enable_stamped_cmd_vel: true
 
 waypoint_follower:
