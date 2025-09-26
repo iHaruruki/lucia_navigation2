@@ -2,13 +2,13 @@
 ### Node and Topic
 ## Dependency
 ```shell
-sudo apt install ros-humble-navigation2    
-sudo apt install ros-humble-nav2-bringup
+sudo apt install ros-jazzy-navigation2    
+sudo apt install ros-jazzy-nav2-bringup
 ```
 ## Setup
 ```shell
 $ cd ~/ros2_ws/src  #Go to ros workspace
-$ git clone https://github.com/iHaruruki/lucia_nav2.git #clone this package
+$ git clone -b jazzy/main https://github.com/iHaruruki/lucia_nav2.git #clone this package
 $ cd ~/ros2_ws
 $ colcon build --symlink-install
 $ source install/setup.bash
