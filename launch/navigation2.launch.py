@@ -78,11 +78,9 @@ def generate_launch_description():
                 'params_file': param_dir}.items(),
         ),
 
-        # RViz2 の起動（別のlaunchファイルから）
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([rviz2_launch_file_dir, '/rviz2_only.launch.py']),
+            PythonLaunchDescriptionSource([nav2_launch_file_dir, '/rviz_launch.py']),
             launch_arguments={
-                'use_sim_time': use_sim_time,
-                'rviz_config': rviz_config_dir}.items(),
-        ),
+                'use_sim_time': use_sim_time}.items(),
+        )
     ])
