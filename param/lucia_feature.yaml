@@ -272,6 +272,23 @@ global_costmap:
         cost_scaling_factor: 5.0
       always_send_full_costmap: true
 
+collision_monitor:
+  ros__parameters:
+    enable_stamped_cmd_vel: true
+    transform_tolerance: 0.1
+    source_timeout: 5.0
+    stop_pub_timeout: 2.0
+    base_shift_correction: False
+    polygon: ["DummyPolygeon"]
+    DummyPolygeon:
+      type: "circle"
+      radius: 0.3
+      action_type: "none"
+    observation_sources: ["scan"]
+    scan:
+      type: "scan"
+      topic: "/scan"
+
 map_server:
   ros__parameters:
     yaml_filename: "map.yaml"
