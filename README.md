@@ -1,5 +1,6 @@
 # 🤖 lucia_nav2
 ## 🚀 Overview
+lucia_navigation2 is a ROS 2 Navigation2 integration package for the Lucia mobile robot, providing a structured setup for mapping, localization, path planning, behavior tree–based task flow, and controller tuning across simulation and real hardware.
 
 ## 🛠️ Setup
 Install packages
