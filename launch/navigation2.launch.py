@@ -43,6 +43,12 @@ def generate_launch_description():
             'param',
             'lucia.yaml'))
 
+    collision_monitor_params = os.path.join(
+        get_package_share_directory('lucia_navigation2'),
+        'param',
+        'lucia.yaml'
+    )
+
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
     
     # RViz2 launch file
