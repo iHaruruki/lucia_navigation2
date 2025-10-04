@@ -1,20 +1,22 @@
-# lucia_nav2
-### Node and Topic
-## Dependency
+# 🤖 lucia_nav2
+## 🚀 Overview
+
+## 🛠️ Setup
+Install packages
 ```shell
 sudo apt install ros-humble-navigation2    
 sudo apt install ros-humble-nav2-bringup
-```
-## Setup
+Clone & Build
 ```shell
-$ cd ~/ros2_ws/src  #Go to ros workspace
-$ git clone https://github.com/iHaruruki/lucia_nav2.git #clone this package
-$ cd ~/ros2_ws
-$ colcon build --symlink-install
-$ source install/setup.bash
+cd ~/ros2_ws/src  #Go to ros workspace
+git clone https://github.com/iHaruruki/lucia_nav2.git #clone this package
+cd ~/ros2_ws
+colcon build --symlink-install --packages-select lucia_navigation2
+source install/setup.bash
 ```
-## Usage
+## 🎮 Usage
 Lucia have two modes of operation.
+
 ### Navigation mode
 #### Launch Lucia's motor and LiDAR
 ```shell
@@ -66,8 +68,11 @@ You should see the map update live! To save this map to file:
 ros2 run nav2_map_server map_saver_cli -f ~/map
 ```
 
-## License
-## Authors
-## References
+## 📜 License
+
+## 👤 Authors
+- **[iHaruruki](https://github.com/iHaruruki)** — Main author & maintainer
+
+## 📚 References
 [Nav2](https://docs.nav2.org/index.html)
 [(SLAM) Navigating While Mapping](https://docs.nav2.org/tutorials/docs/navigation2_with_slam.html)
