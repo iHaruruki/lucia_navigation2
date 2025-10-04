@@ -279,11 +279,15 @@ collision_monitor:
     source_timeout: 5.0
     stop_pub_timeout: 2.0
     base_shift_correction: False
-    polygon: ["DummyPolygeon"]
-    DummyPolygeon:
-      type: "circle"
-      radius: 0.3
-      action_type: "none"
+    polygon: ["SlowPolygon"]
+    SlowPolygon:
+      type: "footprint"
+      footprint_topic: "/local_costmap/published_footprint"
+      action_type: "slowdown"
+      slowdown_ratio: "0.6"
+      mim_points: 10
+      visualize: true
+      polygon_pub_topic: "slowdown_polygon"
     observation_sources: ["scan"]
     scan:
       type: "scan"
