@@ -272,27 +272,6 @@ global_costmap:
         cost_scaling_factor: 5.0
       always_send_full_costmap: true
 
-collision_monitor:
-  ros__parameters:
-    enable_stamped_cmd_vel: true
-    transform_tolerance: 0.1
-    source_timeout: 5.0
-    stop_pub_timeout: 2.0
-    base_shift_correction: False
-    polygon: ["SlowPolygon"]
-    SlowPolygon:
-      type: "footprint"
-      footprint_topic: "/local_costmap/published_footprint"
-      action_type: "slowdown"
-      slowdown_ratio: "0.6"
-      mim_points: 10
-      visualize: true
-      polygon_pub_topic: "slowdown_polygon"
-    observation_sources: ["scan"]
-    scan:
-      type: "scan"
-      topic: "/scan"
-
 map_server:
   ros__parameters:
     yaml_filename: "map.yaml"
