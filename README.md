@@ -78,3 +78,4 @@ ros2 run nav2_map_server map_saver_cli -f ~/map
 ## 📚 References
 [Nav2](https://docs.nav2.org/index.html)
 [(SLAM) Navigating While Mapping](https://docs.nav2.org/tutorials/docs/navigation2_with_slam.html)
+[Turtlebot3_Navigation](https://emanual.robotis.com/docs/en/platform/turtlebot3/navigation/#run-navigation-nodes)
