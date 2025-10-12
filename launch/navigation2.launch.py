@@ -1,3 +1,19 @@
+# Copyright 2019 Open Source Robotics Foundation, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Darby Lim
+
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -8,6 +24,10 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
+# TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
+# ROS_DISTRO = os.environ.get('ROS_DISTRO')
+
+
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     map_dir = LaunchConfiguration(
@@ -16,7 +36,6 @@ def generate_launch_description():
             get_package_share_directory('lucia_navigation2'),
             'map',
             'map_e3.yaml'))
-
     param_dir = LaunchConfiguration(
         'params_file',
         default=os.path.join(
@@ -24,13 +43,9 @@ def generate_launch_description():
             'param',
             'lucia.yaml'))
 
-    collision_monitor_params = os.path.join(
-        get_package_share_directory('lucia_navigation2'),
-        'param',
-        'lucia.yaml'
-    )
-
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
+    
+    # RViz2 launch file
     rviz2_launch_file_dir = os.path.join(get_package_share_directory('lucia_navigation2'), 'launch')
 
     rviz_config_dir = os.path.join(
@@ -63,17 +78,9 @@ def generate_launch_description():
                 'params_file': param_dir}.items(),
         ),
 
-        Node(
-            package='nav2_collision_monitor',
-            executable='collision_monitor',
-            name='collision_monitor',
-            output='screen',
-            parameters=[collision_monitor_params, {'use_sim_time': use_sim_time}]
-        ),
-
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/rviz_launch.py']),
             launch_arguments={
                 'use_sim_time': use_sim_time}.items(),
-        ),
+        )
     ])
