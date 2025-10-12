@@ -4,12 +4,13 @@ lucia_navigation2 is a ROS 2 Navigation2 integration package for the Lucia mobil
 
 ## 🛠️ Setup
 Install packages
-```shell
+```bash
 sudo apt install ros-humble-navigation2    
 sudo apt install ros-humble-nav2-bringup
 sudo apt install ros-humble-nav2-collision-monitor
+```
 Clone & Build
-```shell
+```bash
 cd ~/ros2_ws/src  #Go to ros workspace
 git clone https://github.com/iHaruruki/lucia_nav2.git #clone this package
 cd ~/ros2_ws
@@ -21,11 +22,11 @@ Lucia have two modes of operation.
 
 ### Navigation mode
 #### Launch Lucia's motor and LiDAR
-```shell
+```bash
 ros2 launch lucia_controller bringup.launch.py
 ```
 #### Launch Nav2 & rviz2
-```shell
+```bash
 ros2 launch lucia_navigation2 navigation2.launch.py 
 map:=$HOME/ros2_ws/maps/map.yaml 
 params_file:=$HOME/ros2_ws/src/lucia_navigation2/param/lucia.yaml 
