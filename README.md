@@ -33,11 +33,11 @@ params_file:=$HOME/ros2_ws/src/lucia_navigation2/param/lucia.yaml
 use_sim_time:=false
 ```
 Launch arguments:
-- map: path to map yaml
-- params_file: path to Navigation2 params (default tries param/lucia.yaml then waffle.yaml)
-- rviz_config: custom rviz config file
-- namespace: robot namespace (empty by default)
-- use_sim_time: use simulated clock
+- `map`: path to map yaml
+- `params_file`: path to Navigation2 params (default tries param/lucia.yaml then waffle.yaml)
+- `rviz_config`: custom rviz config file
+- `namespace`: robot namespace (empty by default)
+- `use_sim_time`: use simulated clock
 
 #### Initialize the Location of Lucia
 First, find where the robot is on the map. Check where your robot is in the room./
@@ -48,7 +48,7 @@ Pick a target location for Lucia on the map. You can send Lucia a goal position 
 
 ![Nav2 Video](media/nav2.gif)
 
-### Navigating while Mapping
+### Navigating while Mapping mode
 #### Launch Lucia's motor and LiDAR
 ```shell
 ros2 launch lucia_controller bringup.launch.py
