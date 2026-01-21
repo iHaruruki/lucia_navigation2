@@ -48,7 +48,7 @@ Pick a target location for Lucia on the map. You can send Lucia a goal position 
 
 ![Nav2 Video](media/nav2.gif)
 
-### Navigating while Mapping
+### Navigating while Mapping mode
 #### Launch Lucia's motor and LiDAR
 ```shell
 ros2 launch lucia_controller bringup.launch.py
