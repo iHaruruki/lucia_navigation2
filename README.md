@@ -77,8 +77,8 @@ ros2 run nav2_map_server map_saver_cli -f ~/map
 - **[iHaruruki](https://github.com/iHaruruki)** — Main author & maintainer
 
 ## 📚 References
-[Nav2](https://docs.nav2.org/index.html)
-[(SLAM) Navigating While Mapping](https://docs.nav2.org/tutorials/docs/navigation2_with_slam.html)
-[Turtlebot3_Navigation](https://emanual.robotis.com/docs/en/platform/turtlebot3/navigation/#run-navigation-nodes)
-[ROS 2 Navigation Tuning Guide - Nav2](https://automaticaddison.com/ros-2-navigation-tuning-guide-nav2/)
-[A Navigation System(IROS 2020)](https://youtu.be/QB7lOKp3ZDQ?si=lvRZoMHLNqqNln23)
+- [Nav2](https://docs.nav2.org/index.html)
+- [(SLAM) Navigating While Mapping](https://docs.nav2.org/tutorials/docs/navigation2_with_slam.html)
+- [Turtlebot3_Navigation](https://emanual.robotis.com/docs/en/platform/turtlebot3/navigation/#run-navigation-nodes)
+- [ROS 2 Navigation Tuning Guide - Nav2](https://automaticaddison.com/ros-2-navigation-tuning-guide-nav2/)
+- [A Navigation System(IROS 2020)](https://youtu.be/QB7lOKp3ZDQ?si=lvRZoMHLNqqNln23)
