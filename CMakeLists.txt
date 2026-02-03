@@ -24,6 +24,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   lucia_navigation2/waypoint_navi_loop.py
   lucia_navigation2/waypoint_navi.py
+  lucia_navigation2/patrol.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
