@@ -30,9 +30,9 @@ class WaypointNavigator(Node):
 
     def run(self):
         # --- Set initial pose
-        # initial_pose = make_pose(0.0, 0.0, 0.0)
-        # self.get_logger().info('Setting initial pose...')
-        # self.navigator.setInitialPose(initial_pose)
+        initial_pose = make_pose(0.0, 0.0, 0.0)
+        self.get_logger().info('Setting initial pose...')
+        self.navigator.setInitialPose(initial_pose)
 
         # --- Wait for Nav2 to become active
         self.get_logger().info('Waiting for Nav2 to become active...')

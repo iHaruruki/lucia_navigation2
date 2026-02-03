@@ -22,7 +22,7 @@ ament_python_install_package(${PROJECT_NAME})
 
 # Pythonノードをインストール
 install(PROGRAMS
-  lucia_navigation2/nav2_test.py
+  lucia_navigation2/waypoint_navi_loop.py
   lucia_navigation2/waypoint_navi.py
   DESTINATION lib/${PROJECT_NAME}
 )
