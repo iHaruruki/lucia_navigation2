@@ -63,6 +63,11 @@ Launch arguments:
 - `params_file`: path to Navigation2 params (default tries param/lucia.yaml then waffle.yaml)
 - `use_sim_time`: use simulated clock
 
+#### 3. Run waypoint waypoint_navi_node (Send waypoint)
+```bash
+ros2 run lucia_navigation2 waypoint_navi.py
+```
+
 ### Navigating while Mapping mode
 #### 1. Launch Lucia's motor and LiDAR
 ```shell
