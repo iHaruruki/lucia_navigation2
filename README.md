@@ -9,6 +9,7 @@ sudo apt install ros-humble-navigation2
 sudo apt install ros-humble-nav2-bringup
 sudo apt install ros-humble-nav2-collision-monitor
 sudo apt install ros-humble-nav2-simple-commander
+sudo apt install ros-humble-tf-transformations
 ```
 Clone & Build
 ```bash
