@@ -22,11 +22,36 @@ source install/setup.bash
 Lucia have two modes of operation.
 
 ### Navigation mode
-#### Launch Lucia's motor and LiDAR
+#### 1. Launch Lucia's motor and LiDAR
 ```bash
 ros2 launch lucia_controller bringup.launch.py
 ```
-#### Launch Nav2 & rviz2
+#### 2. Launch Nav2 & rviz2
+```bash
+ros2 launch lucia_navigation2 navigation2.launch.py 
+map:=$HOME/ros2_ws/src/lucia_navigation2/map/map.yaml 
+params_file:=$HOME/ros2_ws/src/lucia_navigation2/param/lucia.yaml use_sim_time:=false
+```
+Launch arguments:
+- `map`: path to map yaml
+- `params_file`: path to Navigation2 params (default tries param/lucia.yaml then waffle.yaml)
+- `use_sim_time`: use simulated clock
+
+#### 3. Initialize the Location of Lucia
+First, find where the robot is on the map. Check where your robot is in the room./
+Set the pose of the robot in RViz. Click on the `2D Pose Estimate` button and point the location of the robot on the map. The direction of the green arrow is the orientation of Lucia.
+
+#### 4. Send a Goal Pose
+Pick a target location for Lucia on the map. You can send Lucia a goal position and a goal orientation by using the `Nav2 Goal` or the GoalTool buttons.
+
+![Nav2 Video](media/nav2.gif)
+
+### waypoint follow mode
+#### 1. Launch Lucia's motor and LiDAR
+```bash
+ros2 launch lucia_controller bringup.launch.py
+```
+#### 2. Launch Nav2 & rviz2
 ```bash
 ros2 launch lucia_navigation2 navigation2.launch.py 
 map:=$HOME/ros2_ws/maps/map.yaml 
@@ -36,33 +61,22 @@ use_sim_time:=false
 Launch arguments:
 - `map`: path to map yaml
 - `params_file`: path to Navigation2 params (default tries param/lucia.yaml then waffle.yaml)
-- `rviz_config`: custom rviz config file
-- `namespace`: robot namespace (empty by default)
 - `use_sim_time`: use simulated clock
 
-#### Initialize the Location of Lucia
-First, find where the robot is on the map. Check where your robot is in the room./
-Set the pose of the robot in RViz. Click on the `2D Pose Estimate` button and point the location of the robot on the map. The direction of the green arrow is the orientation of Lucia.
-
-#### Send a Goal Pose
-Pick a target location for Lucia on the map. You can send Lucia a goal position and a goal orientation by using the `Nav2 Goal` or the GoalTool buttons.
-
-![Nav2 Video](media/nav2.gif)
-
 ### Navigating while Mapping mode
-#### Launch Lucia's motor and LiDAR
+#### 1. Launch Lucia's motor and LiDAR
 ```shell
 ros2 launch lucia_controller bringup.launch.py
 ```
-#### Launch Navigation2
+#### 2. Launch Navigation2
 ```shell
 ros2 launch nav2_bringup navigation_launch.py
 ```
-#### Launch SLAM
+#### 3. Launch SLAM
 ```shell
 ros2 launch slam_toolbox online_async_launch.py
 ```
-#### Working with SLAM
+#### 4. Working with SLAM
 Move your robot by requesting a goal through RViz or the ROS 2 CLI, ie:
 ```shell
 ros2 topic pub /goal_pose geometry_msgs/PoseStamped "{header: {stamp: {sec: 0}, frame_id: 'map'}, pose: {position: {x: 0.2, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}"
