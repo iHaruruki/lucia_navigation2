@@ -166,9 +166,9 @@ class RandomRectNavigator(Node):
                     break
                 elif result == TaskResult.FAILED:
                     self.get_logger().info(
-                        f"Random goal {goal_count} failed. Stopping."
+                        f"Random goal {goal_count} failed. Trying a new random goal..."
                     )
-                    break
+                    continue
 
                 self.get_logger().info(
                     "Cycle finished. Returning to step 1 (sampling next random goal). "
