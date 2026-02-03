@@ -10,6 +10,7 @@ sudo apt install ros-humble-nav2-bringup
 sudo apt install ros-humble-nav2-collision-monitor
 sudo apt install ros-humble-nav2-simple-commander
 sudo apt install ros-humble-tf-transformations
+sudo apt install python3-numpy python3-transforms3d
 ```
 Clone & Build
 ```bash
