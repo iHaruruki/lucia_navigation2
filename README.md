@@ -96,8 +96,9 @@ Click `Publish Point` in rviz2
 
 ##### 3.3 Run
 ```bash
-ros2 run lucia_navigation2 waypoint_navi.py
+ros2 run lucia_navigation2 waypoint_navi_loop.py
 ```
+Stop with `Ctrl+C`
 
 ### Navigating while Mapping mode
 #### 1. Launch Lucia's motor and LiDAR
