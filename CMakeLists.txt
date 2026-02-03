@@ -12,6 +12,20 @@ endif()
 # Find ament packages and libraries for ament and system dependencies
 ################################################################################
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclpy REQUIRED)
+
+################################################################################
+
+ament_python_install_package(${PROJECT_NAME})
+
+# Pythonノードをインストール
+install(PROGRAMS
+  lucia_navigation2/nav2_test.py
+  lucia_navigation2/waypoint_navi.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 ################################################################################
 # Install
