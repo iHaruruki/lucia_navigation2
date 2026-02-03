@@ -4,6 +4,7 @@ from rclpy.node import Node
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 from geometry_msgs.msg import PoseStamped, Point
 from visualization_msgs.msg import Marker
+from nav_msgs.msg import Odometry
 import tf_transformations
 import random
 import math
@@ -33,8 +34,8 @@ class RandomRectNavigator(Node):
         self.navigator = BasicNavigator()
 
         # Rectangle area (map frame) for random goals
-        self.xmin = -2.0
-        self.xmax =  2.0
+        self.xmin =  0.0
+        self.xmax =  3.0
         self.ymin = -2.0
         self.ymax =  2.0
 
@@ -52,17 +53,33 @@ class RandomRectNavigator(Node):
         # State machine flags
         self.current_goal: PoseStamped | None = None
         self.goal_count = 0
-        self.navigating = False  # True while a goal is in progress
+        self.navigating = False
 
-        # --- Marker publisher & timer (for RViz2 rectangle) ---
+        # --- Current yaw from odometry ---
+        self.current_yaw = self.initial_yaw
+        self.odom_sub = self.create_subscription(
+            Odometry,
+            '/odom',
+            self.odom_callback,
+            10
+        )
+
+        # --- Marker publisher & timer ---
         self.marker_pub = self.create_publisher(Marker, 'rect_area_marker', 10)
         self.marker_timer = self.create_timer(1.0, self.publish_rect_marker)
 
-        # --- Main cycle timer (navigation state machine) ---
+        # --- Navigation cycle timer ---
         self.cycle_timer = self.create_timer(0.1, self.cycle_step)
 
-        # 初期姿勢設定と Nav2 アクティブ待ちを一度だけ実行
         self.setup_done = False
+
+    # ---------------- Odometry callback: get current yaw ----------------
+
+    def odom_callback(self, msg: Odometry):
+        q = msg.pose.pose.orientation
+        quat = (q.x, q.y, q.z, q.w)
+        roll, pitch, yaw = tf_transformations.euler_from_quaternion(quat)
+        self.current_yaw = yaw
 
     # ---------------- Marker ----------------
 
@@ -76,7 +93,7 @@ class RandomRectNavigator(Node):
         marker.type = Marker.LINE_STRIP
         marker.action = Marker.ADD
 
-        marker.scale.x = 0.05  # line width
+        marker.scale.x = 0.05
 
         marker.color.r = 0.0
         marker.color.g = 1.0
@@ -92,12 +109,13 @@ class RandomRectNavigator(Node):
 
         self.marker_pub.publish(marker)
 
-    # ------------- Random goal sampling -------------
+    # ------------- Random goal sampling (use current yaw) -------------
 
     def sample_random_goal(self) -> PoseStamped:
+        """位置だけランダム、向きは現在姿勢の yaw を使用する。"""
         x = random.uniform(self.xmin, self.xmax)
         y = random.uniform(self.ymin, self.ymax)
-        yaw = random.uniform(-math.pi, math.pi)
+        yaw = self.current_yaw  # ← ここで現在の yaw を使う
         return make_pose(x, y, yaw)
 
     def get_reachable_random_goal(self) -> PoseStamped | None:
@@ -110,7 +128,8 @@ class RandomRectNavigator(Node):
             self.get_logger().info(
                 f"[Sampling {i+1}/{self.max_goal_sampling_tries}] "
                 f"Random goal candidate: x={goal_pose.pose.position.x:.2f}, "
-                f"y={goal_pose.pose.position.y:.2f}"
+                f"y={goal_pose.pose.position.y:.2f}, "
+                f"yaw={self.current_yaw:.2f} [rad]"
             )
 
             path = self.navigator.getPath(start=self.start_pose, goal=goal_pose)
@@ -132,19 +151,10 @@ class RandomRectNavigator(Node):
     # ---------------- Navigation state machine ----------------
 
     def cycle_step(self):
-        """
-        この関数が 0.1 秒ごとに呼ばれる。
-        - 最初の1回だけ初期化（初期姿勢設定と Nav2 アクティブ待ち）
-        - その後は
-          - ゴール未実行なら新しいランダムゴールをセットして goToPose
-          - 実行中なら isTaskComplete を見て結果処理
-        """
-        # まだ Nav2 準備が終わっていなければ、ここで一度だけ実行
         if not self.setup_done:
             self.setup_nav2()
             return
 
-        # すでにゴールを実行中なら、進捗をチェック
         if self.navigating:
             if not self.navigator.isTaskComplete():
                 feedback = self.navigator.getFeedback()
@@ -154,32 +164,29 @@ class RandomRectNavigator(Node):
                         f"{feedback.distance_remaining:.2f} [m], "
                         f"Elapsed time: {feedback.navigation_time.sec} [s]"
                     )
-                return  # まだ動いているので、次の cycle_step へ
-            # タスクが終わったので結果処理
+                return
             self.handle_result()
             return
 
-        # ここに来るのは「今ゴールを実行していない」とき
-        # → 新しいランダムゴールを決めて実行を開始
         goal_pose = self.get_reachable_random_goal()
         if goal_pose is None:
             self.get_logger().warn(
                 'No reachable random goal found. Waiting and trying again...'
             )
-            return  # 次回の cycle_step で再トライ
+            return
 
         self.goal_count += 1
         self.current_goal = goal_pose
         self.get_logger().info(
             f"Executing random goal {self.goal_count} at "
             f"({goal_pose.pose.position.x:.2f}, "
-            f"{goal_pose.pose.position.y:.2f})"
+            f"{goal_pose.pose.position.y:.2f}), "
+            f"yaw={self.current_yaw:.2f} [rad]"
         )
         self.navigator.goToPose(goal_pose)
         self.navigating = True
 
     def setup_nav2(self):
-        """初期姿勢設定と Nav2 アクティブ待ちを一度だけ行う。"""
         self.get_logger().info('Setting initial pose...')
         initial_pose = make_pose(self.initial_x, self.initial_y, self.initial_yaw)
         self.navigator.setInitialPose(initial_pose)
@@ -188,17 +195,14 @@ class RandomRectNavigator(Node):
         self.get_logger().info('Waiting for Nav2 to become active...')
         self.navigator.waitUntilNav2Active()
         self.get_logger().info('Nav2 is now active.')
-
         self.setup_done = True
 
     def handle_result(self):
-        """現在のゴールの結果を処理し、状態を更新する。"""
         result = self.navigator.getResult()
         if result == TaskResult.SUCCEEDED:
             self.get_logger().info(
                 f"Random goal {self.goal_count} reached successfully."
             )
-            # 次サイクルの start_pose を現在のゴールに更新
             if self.current_goal is not None:
                 self.start_pose = self.current_goal
         elif result == TaskResult.CANCELED:
@@ -209,7 +213,6 @@ class RandomRectNavigator(Node):
             self.get_logger().info(
                 f"Random goal {self.goal_count} failed. Trying a new random goal..."
             )
-        # ゴール終了処理
         self.navigating = False
         self.current_goal = None
 
@@ -218,7 +221,7 @@ def main(args=None):
     rclpy.init(args=args)
     node = RandomRectNavigator()
     try:
-        rclpy.spin(node)  # これがタイマー・Navigator の処理をすべて回す
+        rclpy.spin(node)
     except KeyboardInterrupt:
         node.get_logger().info(
             'Stop requested by user (Ctrl+C). Canceling current task...'
