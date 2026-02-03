@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import rclpy
-from rclpy.duration import Duration
+from rclpy.node import Node
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 from geometry_msgs.msg import PoseStamped
 import tf_transformations
@@ -23,70 +23,91 @@ def make_pose(x: float, y: float, yaw: float, frame_id: str = 'map') -> PoseStam
     return pose
 
 
-def main():
-    # --- Init
-    rclpy.init()
-    navigator = BasicNavigator()
+class WaypointNavigator(Node):
+    def __init__(self):
+        super().__init__('waypoint_navigator')
+        self.navigator = BasicNavigator()
 
-    # --- Set initial pose
-    initial_pose = make_pose(0.0, 0.0, 0.0)
-    navigator.setInitialPose(initial_pose)
+    def run(self):
+        # --- Set initial pose
+        # initial_pose = make_pose(0.0, 0.0, 0.0)
+        # self.get_logger().info('Setting initial pose...')
+        # self.navigator.setInitialPose(initial_pose)
 
-    # --- Wait for Nav2 to become active
-    navigator.waitUntilNav2Active()
+        # --- Wait for Nav2 to become active
+        self.get_logger().info('Waiting for Nav2 to become active...')
+        self.navigator.waitUntilNav2Active()
+        self.get_logger().info('Nav2 is now active.')
 
-    # === 1. Set multiple waypoints ===
-    # Example: define 3 waypoints
-    waypoints = [
-        # make_pose(x, y, yaw)
-        make_pose(1.0, 0.0, 0.0),    # Waypoint 1
-        make_pose(1.0, 1.0, 1.57),   # Waypoint 2
-        make_pose(0.0, 1.0, 3.14),   # Waypoint 3
-    ]
+        # === 1. Set multiple waypoints ===
+        waypoints = [
+            # make_pose(x, y, yaw)
+            make_pose(1.0, 0.0, 0.0),    # Waypoint 1
+            make_pose(1.0, 1.0, 1.57),   # Waypoint 2
+            make_pose(0.0, 1.0, 3.14),   # Waypoint 3
+        ]
 
-    # Start waypoint navigation
-    navigator.followWaypoints(waypoints)
+        self.get_logger().info('Starting waypoint navigation...')
+        self.navigator.followWaypoints(waypoints)
 
-    # Wait until waypoint navigation is complete
-    i = 0
-    while not navigator.isTaskComplete():
-        # Optionally check feedback
-        feedback = navigator.getFeedback()
-        if feedback and i % 5 == 0:  # Print every 5th feedback
-            print(f'Currently at waypoint index: {feedback.current_waypoint}')
-        i += 1
+        # Wait until waypoint navigation is complete
+        i = 0
+        while not self.navigator.isTaskComplete():
+            feedback = self.navigator.getFeedback()
+            if feedback and i % 5 == 0:  # Log every 5th feedback
+                # FollowWaypoints_Feedback has only current_waypoint (and maybe similar),
+                # so we only log the index here.
+                self.get_logger().info(
+                    f"[Waypoints] Current waypoint index: {feedback.current_waypoint}"
+                )
+            i += 1
 
-    result = navigator.getResult()
-    if result == TaskResult.SUCCEEDED:
-        print('All waypoints reached successfully.')
-    elif result == TaskResult.CANCELED:
-        print('Waypoint task was canceled.')
-        rclpy.shutdown()
-        return
-    elif result == TaskResult.FAILED:
-        print('Waypoint task failed!')
-        rclpy.shutdown()
-        return
+        result = self.navigator.getResult()
+        if result == TaskResult.SUCCEEDED:
+            self.get_logger().info('All waypoints reached successfully.')
+        elif result == TaskResult.CANCELED:
+            self.get_logger().info('Waypoint task was canceled.')
+            return
+        elif result == TaskResult.FAILED:
+            self.get_logger().info('Waypoint task failed!')
+            return
 
-    # === 2. Set final goal point ===
-    # Example: set a different final goal after waypoints
-    goal_pose = make_pose(2.0, 2.0, 0.0)
-    navigator.goToPose(goal_pose)
+        # === 2. Set final goal point (use goToPose, which provides distance/time feedback) ===
+        goal_pose = make_pose(2.0, 2.0, 0.0)
+        self.get_logger().info(
+            f"Starting final goal navigation to "
+            f"({goal_pose.pose.position.x:.2f}, {goal_pose.pose.position.y:.2f})..."
+        )
+        self.navigator.goToPose(goal_pose)
 
-    # Wait until the final goal is reached
-    while not navigator.isTaskComplete():
-        feedback = navigator.getFeedback()
-        if feedback:
-            print(f'Distance remaining: {feedback.distance_remaining:.2f} m')
+        # Wait until the final goal is reached
+        j = 0
+        while not self.navigator.isTaskComplete():
+            feedback = self.navigator.getFeedback()
+            if feedback and j % 5 == 0:  # Log every 5th feedback
+                # For goToPose, feedback has distance_remaining and navigation_time.
+                self.get_logger().info(
+                    f"[Goal] Distance remaining: {feedback.distance_remaining:.2f} [m]"
+                )
+                self.get_logger().info(
+                    f"[Goal] Elapsed time: {feedback.navigation_time.sec} [s]"
+                )
+            j += 1
 
-    goal_result = navigator.getResult()
-    if goal_result == TaskResult.SUCCEEDED:
-        print('Goal reached!')
-    elif goal_result == TaskResult.CANCELED:
-        print('Goal navigation was canceled.')
-    elif goal_result == TaskResult.FAILED:
-        print('Goal navigation failed!')
+        goal_result = self.navigator.getResult()
+        if goal_result == TaskResult.SUCCEEDED:
+            self.get_logger().info('Goal reached!')
+        elif goal_result == TaskResult.CANCELED:
+            self.get_logger().info('Goal navigation was canceled.')
+        elif goal_result == TaskResult.FAILED:
+            self.get_logger().info('Goal navigation failed!')
 
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = WaypointNavigator()
+    node.run()
+    node.destroy_node()
     rclpy.shutdown()
 
 
