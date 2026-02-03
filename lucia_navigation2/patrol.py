@@ -35,9 +35,9 @@ class RandomRectNavigator(Node):
 
         # Rectangle area (map frame) for random goals
         self.xmin =  0.0
-        self.xmax =  3.0
+        self.xmax =  5.0
         self.ymin = -2.0
-        self.ymax =  2.0
+        self.ymax =  4.0
 
         # Initial pose (map frame)
         self.initial_x = 0.0
