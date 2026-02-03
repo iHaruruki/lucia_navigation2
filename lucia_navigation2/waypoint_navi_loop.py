@@ -30,6 +30,7 @@ class LoopRouteNavigator(Node):
 
         # Define route (waypoints + final goal)
         self.waypoints = [
+            # make_pose(x, y, yaw)
             make_pose(3.76, 1.07, 0.0),     # Waypoint 1
             make_pose(3.76, -0.02, 1.57),   # Waypoint 2
             make_pose(2.5, -1.4, 3.14),     # Waypoint 3
@@ -38,9 +39,9 @@ class LoopRouteNavigator(Node):
 
     def run(self):
         # --- Set initial pose
-        # initial_pose = make_pose(0.0, 0.0, 0.0)
-        # self.get_logger().info('Setting initial pose...')
-        # self.navigator.setInitialPose(initial_pose)
+        initial_pose = make_pose(0.0, 0.0, 0.0)
+        self.get_logger().info('Setting initial pose...')
+        self.navigator.setInitialPose(initial_pose)
 
         # --- Wait for Nav2 to become active
         self.get_logger().info('Waiting for Nav2 to become active...')
@@ -49,13 +50,13 @@ class LoopRouteNavigator(Node):
 
         loop_count = 0
 
-        # === Main loop: keep moving on the same route until stopped ===
         try:
+            # === Main loop: keep moving on the same route until stopped ===
             while rclpy.ok():
                 loop_count += 1
                 self.get_logger().info(f'========== Start loop {loop_count} ==========')
 
-                # --- 1. Follow waypoints (route section)
+                # --- 1. Follow waypoints
                 self.get_logger().info('Starting waypoint navigation...')
                 self.navigator.followWaypoints(self.waypoints)
 
@@ -113,7 +114,12 @@ class LoopRouteNavigator(Node):
                 )
 
         except KeyboardInterrupt:
-            self.get_logger().info('Stop requested by user (Ctrl+C).')
+            # Here we also stop the robot by canceling the current Nav2 task
+            self.get_logger().info('Stop requested by user (Ctrl+C). Canceling current task...')
+            try:
+                self.navigator.cancelTask()
+            except Exception as e:
+                self.get_logger().warn(f'Failed to cancel task: {e}')
 
         self.get_logger().info('Shutting down LoopRouteNavigator.')
 
