@@ -42,9 +42,9 @@ class WaypointNavigator(Node):
         # === 1. Set multiple waypoints ===
         waypoints = [
             # make_pose(x, y, yaw)
-            make_pose(1.0, 0.0, 0.0),    # Waypoint 1
-            make_pose(1.0, 1.0, 1.57),   # Waypoint 2
-            make_pose(0.0, 1.0, 3.14),   # Waypoint 3
+            make_pose(3.76, 1.07, 0.0),     # Waypoint 1
+            make_pose(3.76, -0.02, 1.57),   # Waypoint 2
+            make_pose(2.5, -1.4, 3.14),     # Waypoint 3
         ]
 
         self.get_logger().info('Starting waypoint navigation...')

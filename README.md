@@ -66,6 +66,35 @@ Launch arguments:
 - `use_sim_time`: use simulated clock
 
 #### 3. Run waypoint waypoint_navi_node (Send waypoint)
+##### 3.1 Set `initial_pose`, `wyapoint`, `goal point` in `waypoint_navi.py`
+```py
+# --- Set initial pose
+initial_pose = make_pose(0.0, 0.0, 0.0)
+self.get_logger().info('Setting initial pose...')
+self.navigator.setInitialPose(initial_pose)
+###################################################
+# === 1. Set multiple waypoints ===
+        waypoints = [
+            # make_pose(x, y, yaw)
+            make_pose(1.0, 0.0, 0.0),    # Waypoint 1
+            make_pose(1.0, 1.0, 1.57),   # Waypoint 2
+            make_pose(0.0, 1.0, 3.14),   # Waypoint 3
+        ]
+####################################################
+# === 2. Set final goal point (use goToPose, which provides distance/time feedback) ===
+        goal_pose = make_pose(2.0, 2.0, 0.0)
+        self.get_logger().info(
+            f"Starting final goal navigation to "
+            f"({goal_pose.pose.position.x:.2f}, {goal_pose.pose.position.y:.2f})..."
+        )
+```
+##### 3.2 How to find coordinates on an environmental map
+```bash
+ros2 topic echo /clicked_point
+```
+Click `Publish Point` in rviz2
+
+##### 3.3 Run
 ```bash
 ros2 run lucia_navigation2 waypoint_navi.py
 ```
