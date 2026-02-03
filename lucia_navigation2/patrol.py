@@ -25,81 +25,87 @@ def make_pose(x: float, y: float, yaw: float, frame_id: str = 'map') -> PoseStam
     return pose
 
 
-class RandomPatrolNavigator(Node):
+class RandomRectNavigator(Node):
     def __init__(self):
-        super().__init__('random_patrol_navigator')
+        super().__init__('random_rect_navigator')
         self.navigator = BasicNavigator()
 
-        # Patrol area (map frame). Adjust these values to your environment.
+        # Rectangle area (map frame) for random goals
         self.xmin = -2.0
         self.xmax =  2.0
         self.ymin = -2.0
         self.ymax =  2.0
 
-        # Initial pose of the robot (map frame)
+        # Initial pose (map frame)
         self.initial_x = 0.0
         self.initial_y = 0.0
         self.initial_yaw = 0.0  # rad
 
-        # How many times to try generating a reachable random goal per step
+        # How many times to try reachability per cycle
         self.max_goal_sampling_tries = 20
 
-    # ---------- Random goal generation & reachability check ----------
+        # Start pose for path planning (updated after each successful goal)
+        self.start_pose: PoseStamped | None = None
 
-    def _sample_random_goal_pose(self) -> PoseStamped:
-        """Generate a random goal pose within the specified rectangular area (no reachability check)."""
+    # -------- 1. Random goal in rectangle --------
+
+    def sample_random_goal(self) -> PoseStamped:
+        """Step 1: randomly sample a goal pose (x, y, yaw) inside the rectangle."""
         x = random.uniform(self.xmin, self.xmax)
         y = random.uniform(self.ymin, self.ymax)
         yaw = random.uniform(-math.pi, math.pi)
         return make_pose(x, y, yaw)
 
+    # ---- 2 & 3. Use Nav2 to plan path and check reachability ----
+
     def get_reachable_random_goal(self) -> PoseStamped | None:
         """
-        Generate a random goal and check if it is reachable using Nav2 getPath.
-        Returns a PoseStamped if reachable, otherwise None after several failed trials.
+        Step 2 & 3:
+        - Use Nav2 getPath(start=self.start_pose, goal=random_goal).
+        - If path exists, return that goal. Otherwise try another.
         """
-        current_pose = self.navigator.getCurrentPose()
-        if current_pose is None:
-            self.get_logger().warn('Current pose is not available. Cannot check reachability.')
+        if self.start_pose is None:
+            self.get_logger().warn(
+                'start_pose is not set. Cannot check reachability.'
+            )
             return None
 
         for i in range(self.max_goal_sampling_tries):
-            goal_pose = self._sample_random_goal_pose()
+            goal_pose = self.sample_random_goal()
 
             self.get_logger().info(
                 f"[Sampling {i+1}/{self.max_goal_sampling_tries}] "
-                f"Trying random goal: x={goal_pose.pose.position.x:.2f}, "
+                f"Random goal candidate: x={goal_pose.pose.position.x:.2f}, "
                 f"y={goal_pose.pose.position.y:.2f}"
             )
 
-            # Ask Nav2 for a path from current pose to this random goal
-            path = self.navigator.getPath(start=current_pose, goal=goal_pose)
+            # Plan path from start_pose to candidate goal
+            path = self.navigator.getPath(start=self.start_pose, goal=goal_pose)
 
             if path is not None and len(path.poses) > 0:
-                self.get_logger().info(
-                    "Found a reachable random goal (path exists). Using this goal."
-                )
+                self.get_logger().info("Path found. This random goal is reachable.")
                 return goal_pose
             else:
                 self.get_logger().info(
-                    "No valid path to this goal. Sampling another random goal..."
+                    "No valid path for this goal. Trying another random goal..."
                 )
 
         self.get_logger().warn(
-            "Failed to find a reachable random goal in the given area "
-            "after several tries."
+            "Could not find any reachable random goal in the rectangle "
+            "after several trials."
         )
         return None
 
-    # ------------------------------ Main logic ------------------------------
+    # ---------------------- Main loop ----------------------
 
     def run(self):
-        # --- Set initial pose
+        # 1) Set initial pose and remember it as start_pose
         initial_pose = make_pose(self.initial_x, self.initial_y, self.initial_yaw)
         self.get_logger().info('Setting initial pose...')
         self.navigator.setInitialPose(initial_pose)
+        self.start_pose = initial_pose
 
-        # --- Wait for Nav2 to become active
+        # 2) Wait for Nav2 to become active
         self.get_logger().info('Waiting for Nav2 to become active...')
         self.navigator.waitUntilNav2Active()
         self.get_logger().info('Nav2 is now active.')
@@ -107,39 +113,41 @@ class RandomPatrolNavigator(Node):
         goal_count = 0
 
         try:
-            # Main loop: keep patrolling with random reachable goals until Ctrl+C
+            # 3) Main loop: 1 -> 2 -> 3 -> 4 (back to 1) until Ctrl+C
             while rclpy.ok():
                 goal_count += 1
                 self.get_logger().info(
-                    f'========== Start random goal {goal_count} =========='
+                    f'========== Random navigation cycle {goal_count} =========='
                 )
 
-                # Get a reachable random goal (checked by getPath)
+                # Steps 1–3: get reachable random goal
                 goal_pose = self.get_reachable_random_goal()
                 if goal_pose is None:
-                    # Could not find any reachable goal in the area
                     self.get_logger().warn(
-                        "Could not find a reachable random goal. Stopping patrol."
+                        'No reachable random goal found. Stopping navigation.'
                     )
                     break
 
                 self.get_logger().info(
-                    f"Sending goal {goal_count} to "
-                    f"({goal_pose.pose.position.x:.2f}, {goal_pose.pose.position.y:.2f})..."
+                    f"Executing random goal {goal_count} at "
+                    f"({goal_pose.pose.position.x:.2f}, "
+                    f"{goal_pose.pose.position.y:.2f})"
                 )
+
+                # Execute goal
                 self.navigator.goToPose(goal_pose)
 
-                # Wait until the robot reaches the goal (or the task ends)
+                # Wait for completion
                 i = 0
                 while not self.navigator.isTaskComplete():
                     feedback = self.navigator.getFeedback()
                     if feedback and i % 5 == 0:
                         self.get_logger().info(
-                            f"[Random goal {goal_count}] Distance remaining: "
+                            f"[Goal {goal_count}] Distance remaining: "
                             f"{feedback.distance_remaining:.2f} [m]"
                         )
                         self.get_logger().info(
-                            f"[Random goal {goal_count}] Elapsed time: "
+                            f"[Goal {goal_count}] Elapsed time: "
                             f"{feedback.navigation_time.sec} [s]"
                         )
                     i += 1
@@ -149,24 +157,25 @@ class RandomPatrolNavigator(Node):
                     self.get_logger().info(
                         f"Random goal {goal_count} reached successfully."
                     )
+                    # Update start_pose to this goal for the next cycle
+                    self.start_pose = goal_pose
                 elif result == TaskResult.CANCELED:
                     self.get_logger().info(
-                        f"Random goal {goal_count} was canceled. Stopping patrol."
+                        f"Random goal {goal_count} was canceled. Stopping."
                     )
                     break
                 elif result == TaskResult.FAILED:
                     self.get_logger().info(
-                        f"Random goal {goal_count} failed. Stopping patrol."
+                        f"Random goal {goal_count} failed. Stopping."
                     )
                     break
 
                 self.get_logger().info(
-                    "Random goal finished. Sending next random goal "
-                    "(press Ctrl+C to stop)..."
+                    "Cycle finished. Returning to step 1 (sampling next random goal). "
+                    "Press Ctrl+C to stop."
                 )
 
         except KeyboardInterrupt:
-            # When Ctrl+C is pressed, cancel the current Nav2 task to stop the robot
             self.get_logger().info(
                 'Stop requested by user (Ctrl+C). Canceling current task...'
             )
@@ -175,12 +184,12 @@ class RandomPatrolNavigator(Node):
             except Exception as e:
                 self.get_logger().warn(f'Failed to cancel task: {e}')
 
-        self.get_logger().info('Shutting down RandomPatrolNavigator.')
+        self.get_logger().info('Shutting down RandomRectNavigator.')
 
 
 def main(args=None):
     rclpy.init(args=args)
-    node = RandomPatrolNavigator()
+    node = RandomRectNavigator()
     node.run()
     node.destroy_node()
     rclpy.shutdown()
