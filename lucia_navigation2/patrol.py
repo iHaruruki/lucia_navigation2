@@ -6,7 +6,8 @@ from geometry_msgs.msg import PoseStamped
 import tf_transformations
 import random
 import math
-
+from visualization_msgs.msg import Marker
+from geometry_msgs.msg import Point
 
 def make_pose(x: float, y: float, yaw: float, frame_id: str = 'map') -> PoseStamped:
     """Helper function to create PoseStamped from (x, y, yaw[rad])."""
@@ -46,6 +47,38 @@ class RandomRectNavigator(Node):
 
         # Start pose for path planning (updated after each successful goal)
         self.start_pose: PoseStamped | None = None
+
+        # Marker publisher for rectangle area
+        self.marker_pub = self.create_publisher(Marker, 'rect_area_marker', 10)
+        self.marker_timer = self.create_timer(1.0, self.publish_rect_marker)
+
+    def publish_rect_marker(self):
+        marker = Marker()
+        marker.header.frame_id = 'map'
+        marker.header.stamp = self.get_clock().now().to_msg()
+
+        marker.ns = 'patrol_area'
+        marker.id = 0
+        marker.type = Marker.LINE_STRIP
+        marker.action = Marker.ADD
+
+        marker.scale.x = 0.05  # line width
+
+        marker.color.r = 1.0
+        marker.color.g = 0.0
+        marker.color.b = 0.0
+        marker.color.a = 1.0
+
+        # Rectangle corners based on self.xmin/xmax/ymin/ymax
+        p1 = Point(x=self.xmin, y=self.ymin, z=0.0)
+        p2 = Point(x=self.xmax, y=self.ymin, z=0.0)
+        p3 = Point(x=self.xmax, y=self.ymax, z=0.0)
+        p4 = Point(x=self.xmin, y=self.ymax, z=0.0)
+
+        marker.points = [p1, p2, p3, p4, p1]
+
+        self.marker_pub.publish(marker)
+        self.get_logger().info('Published rect_area_marker (test node)')
 
     # -------- 1. Random goal in rectangle --------
 
