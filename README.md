@@ -261,7 +261,8 @@ self.initial_yaw = 0.0  # rad
 - The node will repeatedly generate random target points within this rectangle and send them to Nav2.
 - `initial_x`, `initial_y`, `initial_yaw` define where Lucia starts in the map.
 
-> [!TIP] Choose the rectangle so it stays within **free space** on your map (not in walls or unknown areas).
+> [!TIP] 
+> Choose the rectangle so it stays within **free space** on your map (not in walls or unknown areas).
 
 ##### 3.2 How to find coordinates on an environmental map
 
