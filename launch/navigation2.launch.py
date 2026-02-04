@@ -51,7 +51,7 @@ def generate_launch_description():
     rviz_config_dir = os.path.join(
         get_package_share_directory('lucia_navigation2'),
         'rviz',
-        'tb3_navigation2.rviz')
+        'nav2_rviz.rviz')
 
     return LaunchDescription([
         DeclareLaunchArgument(
