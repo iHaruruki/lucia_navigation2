@@ -162,7 +162,7 @@ class RandomRectNavigator(Node):
                     self.get_logger().info(
                         f"[Goal {self.goal_count}] Distance remaining: "
                         f"{feedback.distance_remaining:.2f} [m], "
-                        f"Elapsed time: {feedback.navigation_time.sec} [s]"
+                        f"Time taken: {feedback.navigation_time.sec} [s]"
                     )
                 return
             self.handle_result()
