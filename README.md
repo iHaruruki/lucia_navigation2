@@ -7,12 +7,7 @@ lucia_navigation2 is a ROS 2 Navigation2 integration package for the Lucia mobil
 ## 🛠️ Setup
 Install packages
 ```bash
-sudo apt install ros-humble-navigation2    
-sudo apt install ros-humble-nav2-bringup
-sudo apt install ros-humble-nav2-collision-monitor
-sudo apt install ros-humble-nav2-simple-commander
-sudo apt install ros-humble-tf-transformations
-sudo apt install python3-numpy python3-transforms3d
+sudo apt install -y ros-humble-navigation2 ros-humble-nav2-bringup ros-humble-nav2-collision-monitor  ros-humble-nav2-simple-commander ros-humble-tf-transformations python3-numpy python3-transforms3d
 ```
 Clone & Build
 ```bash
@@ -67,7 +62,7 @@ Launch arguments:
 - `params_file`: path to Navigation2 params (default tries param/lucia.yaml then waffle.yaml)
 - `use_sim_time`: use simulated clock
 
-#### 3. Run waypoint waypoint_navi_node (Send waypoint)
+#### 3. Run waypoint_navi_node (Send waypoint)
 ##### 3.1 Set `initial_pose`, `wyapoint`, `goal point` in `waypoint_navi.py`
 ```py
 # --- Set initial pose
@@ -101,6 +96,55 @@ Click `Publish Point` in rviz2
 ros2 run lucia_navigation2 waypoint_navi_loop.py
 ```
 Stop with `Ctrl+C`
+
+
+### Patrol Mode
+#### 1. Launch Lucia's motor and LiDAR
+```bash
+ros2 launch lucia_controller bringup.launch.py
+```
+#### 2. Launch Nav2 & rviz2
+```bash
+ros2 launch lucia_navigation2 navigation2.launch.py 
+map:=$HOME/ros2_ws/maps/map.yaml 
+params_file:=$HOME/ros2_ws/src/lucia_navigation2/param/lucia.yaml 
+use_sim_time:=false
+```
+Launch arguments:
+- `map`: path to map yaml
+- `params_file`: path to Navigation2 params (default tries param/lucia.yaml then waffle.yaml)
+- `use_sim_time`: use simulated clock
+
+#### 3. Run patrol_node (Send waypoint)
+##### 3.1 Set `initial_pose`, `patrol area` in `patrol.py`
+```py
+# --- Set patrol area
+self.navigator = BasicNavigator()
+
+        # Rectangle area (map frame) for random goals
+        self.xmin =  0.0
+        self.xmax =  5.0
+        self.ymin = -2.0
+        self.ymax =  4.0
+###################################################
+# --- Set initial pose
+# Initial pose (map frame)
+        self.initial_x = 0.0
+        self.initial_y = 0.0
+        self.initial_yaw = 0.0  # rad
+```
+##### 3.2 How to find coordinates on an environmental map
+```bash
+ros2 topic echo /clicked_point
+```
+Click `Publish Point` in rviz2
+
+##### 3.3 Run
+```bash
+ros2 run lucia_navigation2 waypoint_navi_loop.py
+```
+Stop with `Ctrl+C`
+
 
 ### Navigating while Mapping mode
 #### 1. Launch Lucia's motor and LiDAR
