@@ -2,6 +2,7 @@
 config:
   layout: elk
 ---
+```mermaid
 flowchart LR
     MAP_SERVER(["map_server"]) --> T_MAP["/map"]
     T_SCAN["/scan"] --> AMCL(["amcl"]) & CONTROLLER(["controller_server"]) & RVIZ(["rviz2"])
@@ -22,3 +23,4 @@ flowchart LR
     T_TF --> RVIZ
     T_TF_STATIC["/tf_static"] --> RVIZ
     RVIZ --> T_GOAL
+```
