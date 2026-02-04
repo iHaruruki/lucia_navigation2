@@ -18,7 +18,7 @@ Use the mode that best matches your task:
 | 🟡 | **Patrol mode** | Randomly patrol within a rectangular area on the map | Area surveillance, coverage |
 | 🟣 | **Navigating while Mapping mode** | Build a new map while moving using SLAM | First-time exploration in unknown environments |
 
-> 📝 **Tip:** All modes assume that Lucia is already properly powered on and that the onboard PC is accessible over ROS 2.
+> [!TIP] 📝 All modes assume that Lucia is already properly powered on and that the onboard PC is accessible over ROS 2.
 
 ---
 
@@ -48,7 +48,7 @@ colcon build --symlink-install --packages-select lucia_navigation2
 source install/setup.bash
 ```
 
-> ⚠️ **Note:** Make sure that `lucia_controller` and sensor drivers (e.g., LiDAR) are already installed and buildable in the same workspace, since all modes depend on them.
+> [!WARNING] Make sure that `lucia_controller` and sensor drivers (e.g., LiDAR) are already installed and buildable in the same workspace, since all modes depend on them.
 
 ---
 
@@ -96,7 +96,7 @@ ros2 launch lucia_navigation2 navigation2.launch.py \
    - The clicked point becomes Lucia’s estimated position.
    - The direction of the green arrow is Lucia’s yaw (orientation).
 
-> ℹ️ This initial pose is used by AMCL / localization to start tracking the robot correctly.
+> [!NOTE] This initial pose is used by AMCL / localization to start tracking the robot correctly.
 
 #### 4. Send a Goal Pose
 
@@ -108,7 +108,7 @@ ros2 launch lucia_navigation2 navigation2.launch.py \
 
 ![Nav2 Video](media/nav2.gif)
 
-> ✅ If everything is set correctly, you should see a global path, local trajectory, and Lucia moving towards the goal.
+> [!NOTE] If everything is set correctly, you should see a global path, local trajectory, and Lucia moving towards the goal.
 
 
 ### 🔵 Waypoint follow mode
@@ -169,7 +169,7 @@ self.get_logger().info(
 - `waypoints`: a list of intermediate points that Lucia will visit in order.
 - `goal_pose`: final destination after all waypoints are completed.
 
-> 📝 **Note:** All coordinates (`x`, `y`, `yaw`) are expressed in the **map** frame, in meters and radians.
+> [!NOTE] All coordinates (`x`, `y`, `yaw`) are expressed in the **map** frame, in meters and radians.
 
 ##### 3.2 How to find coordinates on an environmental map
 
@@ -256,7 +256,7 @@ self.initial_yaw = 0.0  # rad
 - The node will repeatedly generate random target points within this rectangle and send them to Nav2.
 - `initial_x`, `initial_y`, `initial_yaw` define where Lucia starts in the map.
 
-> 💡 Choose the rectangle so it stays within **free space** on your map (not in walls or unknown areas).
+> [!TIP] Choose the rectangle so it stays within **free space** on your map (not in walls or unknown areas).
 
 ##### 3.2 How to find coordinates on an environmental map
 
