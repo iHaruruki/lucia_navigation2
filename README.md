@@ -15,7 +15,7 @@ sudo apt install python3-numpy python3-transforms3d
 Clone & Build
 ```bash
 cd ~/ros2_ws/src  #Go to ros workspace
-git clone https://github.com/iHaruruki/lucia_nav2.git #clone this package
+git clone https://github.com/iHaruruki/lucia_navigation2.git #clone this package
 cd ~/ros2_ws
 colcon build --symlink-install --packages-select lucia_navigation2
 source install/setup.bash
