@@ -13,12 +13,13 @@ Use the mode that best matches your task:
 
 | Icon | Mode | Description | Typical Use |
 |------|------|-------------|-------------|
-| 🟢 | **Navigation mode** | Navigate to a single goal pose on an existing map | Point-to-point navigation |
-| 🔵 | **Waypoint follow mode** | Visit multiple waypoints in a specified order, then go to a final goal | Patrol routes, inspection paths |
-| 🟡 | **Patrol mode** | Randomly patrol within a rectangular area on the map | Area surveillance, coverage |
-| 🟣 | **Navigating while Mapping mode** | Build a new map while moving using SLAM | First-time exploration in unknown environments |
+| 🟢 | [**Navigation mode**](#-navigation-mode) | Navigate to a single goal pose on an existing map | Point-to-point navigation |
+| 🔵 | [**Waypoint follow mode**](#-waypoint-follow-mode) | Visit multiple waypoints in a specified order, then go to a final goal | Patrol routes, inspection paths |
+| 🟡 | [**Patrol mode**](#-patrol-mode) | Randomly patrol within a rectangular area on the map | Area surveillance, coverage |
+| 🟣 | [**Navigating while Mapping mode**](#-navigating-while-mapping-mode) | Build a new map while moving using SLAM | First-time exploration in unknown environments |
 
-> [!TIP] 📝 All modes assume that Lucia is already properly powered on and that the onboard PC is accessible over ROS 2.
+> [!TIP] 
+> All modes assume that Lucia is already properly powered on and that the onboard PC is accessible over ROS 2.
 
 ---
 
@@ -48,7 +49,8 @@ colcon build --symlink-install --packages-select lucia_navigation2
 source install/setup.bash
 ```
 
-> [!WARNING] Make sure that `lucia_controller` and sensor drivers (e.g., LiDAR) are already installed and buildable in the same workspace, since all modes depend on them.
+> [!WARNING] 
+> Make sure that `lucia_controller` and sensor drivers (e.g., LiDAR) are already installed and buildable in the same workspace, since all modes depend on them.
 
 ---
 
@@ -96,7 +98,8 @@ ros2 launch lucia_navigation2 navigation2.launch.py \
    - The clicked point becomes Lucia’s estimated position.
    - The direction of the green arrow is Lucia’s yaw (orientation).
 
-> [!NOTE] This initial pose is used by AMCL / localization to start tracking the robot correctly.
+> [!NOTE] 
+> This initial pose is used by AMCL / localization to start tracking the robot correctly.
 
 #### 4. Send a Goal Pose
 
@@ -108,7 +111,8 @@ ros2 launch lucia_navigation2 navigation2.launch.py \
 
 ![Nav2 Video](media/nav2.gif)
 
-> [!NOTE] If everything is set correctly, you should see a global path, local trajectory, and Lucia moving towards the goal.
+> [!NOTE] 
+> If everything is set correctly, you should see a global path, local trajectory, and Lucia moving towards the goal.
 
 
 ### 🔵 Waypoint follow mode
@@ -169,7 +173,8 @@ self.get_logger().info(
 - `waypoints`: a list of intermediate points that Lucia will visit in order.
 - `goal_pose`: final destination after all waypoints are completed.
 
-> [!NOTE] All coordinates (`x`, `y`, `yaw`) are expressed in the **map** frame, in meters and radians.
+> [!NOTE] 
+> All coordinates (`x`, `y`, `yaw`) are expressed in the **map** frame, in meters and radians.
 
 ##### 3.2 How to find coordinates on an environmental map
 
