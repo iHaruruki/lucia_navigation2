@@ -37,12 +37,7 @@ class RandomRectNavigator(Node):
         self.xmin =  0.0
         self.xmax =  5.0
         self.ymin = -2.0
-        self.ymax =  4.0
-
-        # Initial pose (map frame)
-        self.initial_x = 0.0
-        self.initial_y = 0.0
-        self.initial_yaw = 0.0  # rad
+        self.ymax =  3.0
 
         # How many times to try reachability per cycle
         self.max_goal_sampling_tries = 20
@@ -55,8 +50,12 @@ class RandomRectNavigator(Node):
         self.goal_count = 0
         self.navigating = False
 
-        # --- Current yaw from odometry ---
-        self.current_yaw = self.initial_yaw
+        # --- Current pose from odometry ---
+        self.current_x = 0.0
+        self.current_y = 0.0
+        self.current_yaw = 0.0
+        self.odom_received = False
+        
         self.odom_sub = self.create_subscription(
             Odometry,
             '/odom',
@@ -73,13 +72,18 @@ class RandomRectNavigator(Node):
 
         self.setup_done = False
 
-    # ---------------- Odometry callback: get current yaw ----------------
+    # ---------------- Odometry callback: get current pose ----------------
 
     def odom_callback(self, msg: Odometry):
+        self.current_x = msg.pose.pose.position.x
+        self.current_y = msg.pose.pose.position.y
+        
         q = msg.pose.pose.orientation
         quat = (q.x, q.y, q.z, q.w)
         roll, pitch, yaw = tf_transformations.euler_from_quaternion(quat)
         self.current_yaw = yaw
+        
+        self.odom_received = True
 
     # ---------------- Marker ----------------
 
@@ -187,10 +191,18 @@ class RandomRectNavigator(Node):
         self.navigating = True
 
     def setup_nav2(self):
-        self.get_logger().info('Setting initial pose...')
-        initial_pose = make_pose(self.initial_x, self.initial_y, self.initial_yaw)
-        self.navigator.setInitialPose(initial_pose)
-        self.start_pose = initial_pose
+        # Odometryからの現在位置情報を待つ
+        if not self.odom_received:
+            self.get_logger().info('Waiting for odometry data...')
+            return
+        
+        # 初期位置は別で設定されているため、ここでは設定しない
+        # 現在位置をstart_poseとして使用
+        self.start_pose = make_pose(self.current_x, self.current_y, self.current_yaw)
+        self.get_logger().info(
+            f'Using current pose as start: '
+            f'x={self.current_x:.2f}, y={self.current_y:.2f}, yaw={self.current_yaw:.2f}'
+        )
 
         self.get_logger().info('Waiting for Nav2 to become active...')
         self.navigator.waitUntilNav2Active()
