@@ -109,7 +109,7 @@ ros2 launch lucia_navigation2 navigation2.launch.py \
    - The arrow direction is the desired final orientation.
 3. Nav2 will plan a path and send velocity commands to Lucia.
 
-![Nav2 Video](media/nav2.gif)
+![Nav2 Video](media/nav2_d2.gif)
 
 > [!NOTE] 
 > If everything is set correctly, you should see a global path, local trajectory, and Lucia moving towards the goal.
