@@ -101,6 +101,8 @@ ros2 launch lucia_navigation2 navigation2.launch.py \
 > [!NOTE] 
 > This initial pose is used by AMCL / localization to start tracking the robot correctly.
 
+![nav2 initial pose](media/nav2_initial.gif)
+
 #### 4. Send a Goal Pose
 
 1. Click the **Nav2 Goal** (or **GoalTool**) button in the RViz toolbar.
@@ -108,6 +110,17 @@ ros2 launch lucia_navigation2 navigation2.launch.py \
    - The point is the goal position.
    - The arrow direction is the desired final orientation.
 3. Nav2 will plan a path and send velocity commands to Lucia.
+
+<table>
+  <tr>
+    <td><img src="media/nav2_goal.gif" width="200"></td>
+    <td><img src="media/nav2.gif" width="200"></td>
+  </tr>
+  <tr>
+    <td align="center">Click and drag on the target position on the map.</td>
+    <td align="center">変更後</td>
+  </tr>
+</table>
 
 ![Nav2 Video](media/nav2_d2.gif)
 
