@@ -16,7 +16,7 @@ def generate_launch_description():
         default=os.path.join(
             get_package_share_directory('lucia_navigation2'),
             'map',
-            'map_e3.yaml'))
+            'map_e3_c_r1.yaml'))
     param_dir = LaunchConfiguration(
         'params_file',
         default=os.path.join(
