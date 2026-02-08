@@ -209,6 +209,7 @@ Stop the node with:
 ```text
 Ctrl+C
 ```
+![lucia_waypoint_follow](/media/lucia_waypoint_follower.gif)
 
 
 ### 🟡 Patrol Mode
