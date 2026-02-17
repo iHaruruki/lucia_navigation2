@@ -30,9 +30,9 @@ class WaypointNavigator(Node):
 
     def run(self):
         # --- Set initial pose
-        initial_pose = make_pose(0.0, 0.0, 0.0)
-        self.get_logger().info('Setting initial pose...')
-        self.navigator.setInitialPose(initial_pose)
+        # initial_pose = make_pose(0.0, 0.0, 0.0)
+        # self.get_logger().info('Setting initial pose...')
+        # self.navigator.setInitialPose(initial_pose)
 
         # --- Wait for Nav2 to become active
         self.get_logger().info('Waiting for Nav2 to become active...')
@@ -42,9 +42,10 @@ class WaypointNavigator(Node):
         # === 1. Set multiple waypoints ===
         waypoints = [
             # make_pose(x, y, yaw)
-            make_pose(3.76, 1.07, 0.0),     # Waypoint 1
-            make_pose(3.76, -0.02, 1.57),   # Waypoint 2
-            make_pose(2.5, -1.4, 3.14),     # Waypoint 3
+            make_pose(-0.48, -1.76, 0.0),     # Waypoint 1
+            make_pose(1.81, -0.53, 1.57),   # Waypoint 2
+            make_pose(0.73, 1.80, 3.14),     # Waypoint 3
+            make_pose(-2.20, 0.05, 2.04),     # Waypoint 4
         ]
 
         self.get_logger().info('Starting waypoint navigation...')
