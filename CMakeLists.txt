@@ -25,6 +25,7 @@ install(PROGRAMS
   lucia_navigation2/waypoint_navi_loop.py
   lucia_navigation2/waypoint_navi.py
   lucia_navigation2/patrol.py
+  lucia_navigation2/waypoint_skip_tatto.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
