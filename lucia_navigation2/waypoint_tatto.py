@@ -3,9 +3,9 @@ import rclpy
 from rclpy.node import Node
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 from geometry_msgs.msg import PoseStamped
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, String
 import tf_transformations
-import math
+import json
 
 
 def make_pose(x: float, y: float, yaw: float, frame_id: str = 'map') -> PoseStamped:
@@ -33,17 +33,17 @@ class LoopRouteNavigator(Node):
         # Define route (waypoints + final goal)
         self.waypoints = [
             make_pose(0.00, 0.00, 0.0),    # Waypoint 1
-            #make_pose(2.00, 0.00, 0.0),    # Waypoint 2
+            #make_pose(3.94, -1.38, 0.0),    # Waypoint 2
             #make_pose(4.49, -1.33, 0.0),    # Waypoint 3
             #make_pose(4.49, 0.13, 3.14),    # Waypoint 4
         ]
-        self.final_goal = make_pose(2.0, 0.0, 1.57)   # Final goal of the loop
+        self.final_goal = make_pose(2.0, 0.0, 0.0)   # Final goal of the loop
 
         # ========== Sleep Detect Mode Parameters ==========
         # 睡眠検出用waypointの設定（パラメータで変更可能）
         self.declare_parameter('sleep_waypoint_x', 4.0)
         self.declare_parameter('sleep_waypoint_y', 3.0)
-        self.declare_parameter('sleep_waypoint_yaw', 0.78)
+        self.declare_parameter('sleep_waypoint_yaw', 1.57)
         
         sleep_x = self.get_parameter('sleep_waypoint_x').value
         sleep_y = self.get_parameter('sleep_waypoint_y').value
@@ -53,6 +53,7 @@ class LoopRouteNavigator(Node):
         
         # 状態管理
         self.sleep_mode_requested = False
+        self.sleep_started_detected = False
         self.waiting_for_touch = False
         self.in_sleep_mode = False
         
@@ -64,6 +65,15 @@ class LoopRouteNavigator(Node):
             10
         )
         
+        # 睡眠イベントのサブスクライバ
+        self.sleep_event_sub = self.create_subscription(
+            String,
+            '/drowsy_eye/sleep_event',
+            self.sleep_event_callback,
+            10
+        )
+        
+        # 接触センサのサブスクライバ
         self.sensor_sub = self.create_subscription(
             Bool,
             '/sensor_threshold_exceeded',
@@ -84,21 +94,50 @@ class LoopRouteNavigator(Node):
             self.get_logger().info('🚨 Sleep detect mode activated!')
             self.sleep_mode_requested = True
 
+    def sleep_event_callback(self, msg: String):
+        """
+        /drowsy_eye/sleep_event から睡眠イベントを受信
+        sleep_started イベントを検出
+        """
+        try:
+            # JSON文字列をパース
+            event_data = json.loads(msg.data)
+            event_type = event_data.get('event', '')
+            
+            if event_type == 'sleep_started' and self.in_sleep_mode and not self.sleep_started_detected:
+                self.get_logger().info('😴 Sleep event detected: sleep_started')
+                person = event_data.get('person', 'Unknown')
+                timestamp = event_data.get('timestamp', 'N/A')
+                self.get_logger().info(f'   Person: {person}, Timestamp: {timestamp}')
+                self.sleep_started_detected = True
+                
+        except json.JSONDecodeError as e:
+            self.get_logger().warn(f'Failed to parse sleep event JSON: {e}')
+        except Exception as e:
+            self.get_logger().warn(f'Error in sleep_event_callback: {e}')
+
     def sensor_callback(self, msg: Bool):
         """
         /sensor_threshold_exceeded からtrueを受信（接触センサがタッチされた）
+        sleep_started検出後のみ反応する（ノイズ対策）
         """
-        if msg.data and self.waiting_for_touch:
-            self.get_logger().info('✅ Touch tatto sensor detected! Returning to patrol mode...')
+        if msg.data and self.waiting_for_touch and self.sleep_started_detected:
+            self.get_logger().info('✅ Touch sensor detected! Returning to patrol mode...')
             self.waiting_for_touch = False
             self.in_sleep_mode = False
+            self.sleep_started_detected = False
 
     def handle_sleep_detect_mode(self):
         """
         睡眠検出モードの処理
+        1. 睡眠検出waypointへ移動
+        2. sleep_started イベント待ち
+        3. 接触センサ待ち
+        4. 巡回復帰
         """
         self.in_sleep_mode = True
         self.sleep_mode_requested = False
+        self.sleep_started_detected = False
         
         # 現在のナビゲーションタスクをキャンセル
         self.get_logger().info('Canceling current navigation task...')
@@ -131,33 +170,48 @@ class LoopRouteNavigator(Node):
         result = self.navigator.getResult()
         if result == TaskResult.SUCCEEDED:
             self.get_logger().info('✅ Arrived at sleep detection waypoint')
+            
+            # ===== Step 1: sleep_started イベントを待つ =====
+            self.get_logger().info('😴 Waiting for sleep_started event from /drowsy_eye/sleep_event...')
+            
+            while not self.sleep_started_detected and rclpy.ok() and self.in_sleep_mode:
+                rclpy.spin_once(self, timeout_sec=0.1)
+            
+            if not self.sleep_started_detected:
+                self.get_logger().warn('Sleep mode cancelled before sleep_started detected')
+                self.in_sleep_mode = False
+                return
+            
+            # ===== Step 2: 起こす動作を実行 =====
             self.perform_wake_up_action()
             
-            # 接触センサのタッチを待機
+            # ===== Step 3: 接触センサのタッチを待機 =====
             self.waiting_for_touch = True
-            self.get_logger().info('👆 Waiting for touch sensor input...')
+            self.get_logger().info('👆 Waiting for touch sensor input (/sensor_threshold_exceeded)...')
             
             while self.waiting_for_touch and rclpy.ok():
                 rclpy.spin_once(self, timeout_sec=0.1)
             
-            self.get_logger().info('Resuming patrol route...')
+            self.get_logger().info('🔄 Resuming patrol route...')
         else:
             self.get_logger().warn(f'Failed to reach sleep waypoint. Result: {result}')
             self.in_sleep_mode = False
+            self.sleep_started_detected = False
 
     def perform_wake_up_action(self):
         """
         睡眠検出を行い、人を起こす処理
-        実際の起こす動作（音声、LED、動作など）をここに実装
+        実際の起こ���動作（音声、LED、動作など）をここに実装
         """
         self.get_logger().info('🔔 Performing wake-up action...')
         
         # TODO: 実際の起こす動作を実装
         # 例:
         # - 音声出力: os.system('espeak "Wake up please"')
-        # - サウンド再生: os.system('play wake_up.wav')
+        # - サウンド再生: os.system('aplay wake_up.wav')
         # - LEDの点滅: self.led_publisher.publish(...)
         # - ディスプレイ表示: self.display_publisher.publish(...)
+        # - アームの動作: self.arm_controller.wake_up_motion()
         
         import time
         time.sleep(1.0)  # 起こす動作の代わり
