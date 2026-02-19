@@ -32,18 +32,18 @@ class LoopRouteNavigator(Node):
 
         # Define route (waypoints + final goal)
         self.waypoints = [
-            make_pose(2.06, -0.61, 0.0),    # Waypoint 1
-            make_pose(3.94, -1.38, 0.0),    # Waypoint 2
-            make_pose(4.49, -1.33, 0.0),    # Waypoint 3
-            make_pose(4.49, 0.13, 3.14),    # Waypoint 4
+            make_pose(0.00, 0.00, 0.0),    # Waypoint 1
+            #make_pose(2.00, 0.00, 0.0),    # Waypoint 2
+            #make_pose(4.49, -1.33, 0.0),    # Waypoint 3
+            #make_pose(4.49, 0.13, 3.14),    # Waypoint 4
         ]
-        self.final_goal = make_pose(2.0, 2.0, 0.0)   # Final goal of the loop
+        self.final_goal = make_pose(2.0, 0.0, 1.57)   # Final goal of the loop
 
         # ========== Sleep Detect Mode Parameters ==========
         # 睡眠検出用waypointの設定（パラメータで変更可能）
-        self.declare_parameter('sleep_waypoint_x', 3.0)
-        self.declare_parameter('sleep_waypoint_y', 0.0)
-        self.declare_parameter('sleep_waypoint_yaw', 0.0)
+        self.declare_parameter('sleep_waypoint_x', 4.0)
+        self.declare_parameter('sleep_waypoint_y', 3.0)
+        self.declare_parameter('sleep_waypoint_yaw', 0.78)
         
         sleep_x = self.get_parameter('sleep_waypoint_x').value
         sleep_y = self.get_parameter('sleep_waypoint_y').value
