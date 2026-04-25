@@ -136,6 +136,12 @@ ros2 launch lucia_navigation2 navigation2.launch.py \
   params_file:=$HOME/ros2_ws/src/lucia_navigation2/param/lucia.yaml \
   use_sim_time:=false
 ```
+Enable Omnidirectional Movement  
+```bash
+ros2 launch lucia_navigation2 navigation2.launch.py \
+  map:=$HOME/opt/ros2_ws/maps/map_d2_201_r1.yaml
+  params_file:=$HOME/robot/opt/ros2_ws/src/lucia_navigation2/param/lucia_holonomic.yaml
+```
 
 **Launch arguments:**
 
