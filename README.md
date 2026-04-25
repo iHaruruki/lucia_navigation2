@@ -370,6 +370,11 @@ ros2 run nav2_map_server map_saver_cli -f ~/map
 ## 📚 References
 
 - [Nav2](https://docs.nav2.org/index.html)
+
+### controller_server:
+- [nav2_mppi_controller](https://docs.ros.org/en/iron/p/nav2_mppi_controller/)
+
+
 - [(SLAM) Navigating While Mapping](https://docs.nav2.org/tutorials/docs/navigation2_with_slam.html)
 - [Turtlebot3_Navigation](https://emanual.robotis.com/docs/en/platform/turtlebot3/navigation/#run-navigation-nodes)
 - [ROS 2 Navigation Tuning Guide - Nav2](https://automaticaddison.com/ros-2-navigation-tuning-guide-nav2/)
