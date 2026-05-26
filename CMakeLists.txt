@@ -33,7 +33,7 @@ install(PROGRAMS
 # Install
 ################################################################################
 install(
-  DIRECTORY launch map param rviz
+  DIRECTORY launch map params rviz
   DESTINATION share/${PROJECT_NAME}
 )
 

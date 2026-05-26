@@ -33,6 +33,9 @@ def generate_launch_description():
     bringup_dir = get_package_share_directory('nav2_bringup')
     launch_dir = os.path.join(bringup_dir, 'launch')
 
+    lucia_navigation_dir = get_package_share_directory('lucia_navigation2')
+    lucia_navigation_launch_dir = os.path.join(lucia_navigation_dir, 'launch')
+ 
     # Create the launch configuration variables
     namespace = LaunchConfiguration('namespace')
     use_namespace = LaunchConfiguration('use_namespace')
@@ -44,13 +47,9 @@ def generate_launch_description():
     use_composition = LaunchConfiguration('use_composition')
     use_respawn = LaunchConfiguration('use_respawn')
     log_level = LaunchConfiguration('log_level')
+    rviz_config_file = LaunchConfiguration('rviz_config_file')
 
     # Map fully qualified names to relative ones so the node's namespace can be prepended.
-    # In case of the transforms (tf), currently, there doesn't seem to be a better alternative
-    # https://github.com/ros/geometry2/issues/32
-    # https://github.com/ros/robot_state_publisher/pull/30
-    # TODO(orduno) Substitute with `PushNodeRemapping`
-    #              https://github.com/ros2/launch_ros/issues/56
     remappings = [('/tf', 'tf'),
                   ('/tf_static', 'tf_static')]
 
@@ -60,9 +59,6 @@ def generate_launch_description():
         'yaml_filename': map_yaml_file}
 
     # Only it applys when `use_namespace` is True.
-    # '<robot_namespace>' keyword shall be replaced by 'namespace' launch argument
-    # in config file 'nav2_multirobot_params.yaml' as a default & example.
-    # User defined config file should contain '<robot_namespace>' keyword for the replacements.
     params_file = ReplaceString(
         source_file=params_file,
         replacements={'<robot_namespace>': ('/', namespace)},
@@ -96,6 +92,7 @@ def generate_launch_description():
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
         'map',
+        default_value=os.path.join(lucia_navigation_dir, 'map', 'map_d2_s_lound_r1.yaml'),
         description='Full path to map yaml file to load')
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
@@ -105,7 +102,7 @@ def generate_launch_description():
 
     declare_params_file_cmd = DeclareLaunchArgument(
         'params_file',
-        default_value=os.path.join(bringup_dir, 'params', 'nav2_params.yaml'),
+        default_value=os.path.join(lucia_navigation_dir, 'params', 'lucia_holonomic.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes')
 
     declare_autostart_cmd = DeclareLaunchArgument(
@@ -123,6 +120,11 @@ def generate_launch_description():
     declare_log_level_cmd = DeclareLaunchArgument(
         'log_level', default_value='info',
         description='log level')
+    
+    declare_rviz_config = DeclareLaunchArgument(
+        'rviz_config_file',
+        default_value=os.path.join(lucia_navigation_dir, 'rviz', 'lucia_rviz.rviz'),
+        description='Full path to the rviz config file')
 
     # Specify the actions
     bringup_cmd_group = GroupAction([
@@ -163,7 +165,7 @@ def generate_launch_description():
                               'container_name': 'nav2_container'}.items()),
 
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(os.path.join(launch_dir, 'navigation_launch.py')),
+            PythonLaunchDescriptionSource(os.path.join(lucia_navigation_launch_dir, 'navigation.launch.py')),
             launch_arguments={'namespace': namespace,
                               'use_sim_time': use_sim_time,
                               'autostart': autostart,
@@ -171,6 +173,17 @@ def generate_launch_description():
                               'use_composition': use_composition,
                               'use_respawn': use_respawn,
                               'container_name': 'nav2_container'}.items()),
+    ])
+
+    # rviz
+    rviz_group = GroupAction([
+        Node(
+            package='rviz2',
+            executable='rviz2',
+            name='rviz2',
+            arguments=['-d', rviz_config_file],
+            parameters=[{'use_sim_time': use_sim_time}],
+            output='screen'),
     ])
 
     # Create the launch description and populate
@@ -190,8 +203,10 @@ def generate_launch_description():
     ld.add_action(declare_use_composition_cmd)
     ld.add_action(declare_use_respawn_cmd)
     ld.add_action(declare_log_level_cmd)
+    ld.add_action(declare_rviz_config)
 
     # Add the actions to launch all of the navigation nodes
     ld.add_action(bringup_cmd_group)
+    ld.add_action(rviz_group)
 
     return ld
