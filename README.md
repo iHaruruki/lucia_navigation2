@@ -76,7 +76,7 @@ ros2 launch lucia_controller bringup.launch.py
 #### 2. Launch Nav2 & RViz2
 
 ```bash
-ros2 launch lucia_navigation2 navigation2.launch.py \
+ros2 launch lucia_navigation2 bringup.launch.py \
   map:=$HOME/ros2_ws/src/lucia_navigation2/map/map.yaml \
   params_file:=$HOME/ros2_ws/src/lucia_navigation2/param/lucia.yaml \
   use_sim_time:=false
@@ -131,14 +131,14 @@ ros2 launch lucia_controller bringup.launch.py
 #### 2. Launch Nav2 & RViz2
 
 ```bash
-ros2 launch lucia_navigation2 navigation2.launch.py \
+ros2 launch lucia_navigation2 bringup.launch.py \
   map:=$HOME/ros2_ws/maps/map.yaml \
   params_file:=$HOME/ros2_ws/src/lucia_navigation2/param/lucia.yaml \
   use_sim_time:=false
 ```
 Enable Omnidirectional Movement  
 ```bash
-ros2 launch lucia_navigation2 navigation2.launch.py \
+ros2 launch lucia_navigation2 bringup.launch.py \
   map:=$HOME/opt/ros2_ws/maps/map_d2_201_r1.yaml
   params_file:=$HOME/robot/opt/ros2_ws/src/lucia_navigation2/param/lucia_holonomic.yaml
 ```
@@ -233,7 +233,7 @@ ros2 launch lucia_controller bringup.launch.py
 #### 2. Launch Nav2 & RViz2
 
 ```bash
-ros2 launch lucia_navigation2 navigation2.launch.py \
+ros2 launch lucia_navigation2 bringup.launch.py \
   map:=$HOME/ros2_ws/maps/map.yaml \
   params_file:=$HOME/ros2_ws/src/lucia_navigation2/param/lucia.yaml \
   use_sim_time:=false
