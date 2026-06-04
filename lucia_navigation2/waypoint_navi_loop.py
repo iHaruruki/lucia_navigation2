@@ -31,13 +31,12 @@ class LoopRouteNavigator(Node):
         # Define route (waypoints + final goal)
         self.waypoints = [
             # make_pose(x, y, yaw)
-            make_pose(2.06, -0.61, 0.0),    # Waypoint 1
-            make_pose(3.94, -1.38, 0.0),    # Waypoint 2
-            make_pose(4.49, -1.33, 0.0),    # Waypoint 3
-            make_pose(4.49, 0.13, 3.14),    # Waypoint 4
-            make_pose(3.48, 2.59, 3.14),    # Waypoint 5
-            make_pose(2.05, 1.52, 3.14),    # Waypoint 6
-            make_pose(0.46, 0.85, 3.14),    # Waypoint 7
+            make_pose(-5.87, 4.69, 2.72),    # Waypoint 1
+            make_pose(-9.73, 5.00, 2.57),    # Waypoint 2
+            make_pose(-10.97, 1.04, -1.58),    # Waypoint 3
+            make_pose(-10.71, -4.63, 0.36),    # Waypoint 4
+            make_pose(-6.25, -2.69, 0.42),    # Waypoint 5
+            make_pose(-0.49, 0.77, 2.60),    # Waypoint 6
         ]
         self.final_goal = make_pose(2.0, 2.0, 0.0)   # Final goal of the loop
 
