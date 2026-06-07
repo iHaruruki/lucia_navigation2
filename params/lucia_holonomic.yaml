@@ -38,14 +38,14 @@ amcl:
     z_short: 0.05
     scan_topic: scan
     map_topic: map
-    set_initial_pose: false
+    set_initial_pose: true
     always_reset_initial_pose: false
     first_map_only: false
     initial_pose:
-      x: -1.43
-      y: 0.79
+      x: -1.25
+      y: 0.9
       z: 0.0
-      yaw: -1.61
+      yaw: -1.9
 
 bt_navigator:
   ros__parameters:
