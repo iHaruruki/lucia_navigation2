@@ -29,11 +29,11 @@ Use the mode that best matches your task:
 
 ```bash
 sudo apt install -y \
-  ros-humble-navigation2 \
-  ros-humble-nav2-bringup \
-  ros-humble-nav2-collision-monitor \
-  ros-humble-nav2-simple-commander \
-  ros-humble-tf-transformations \
+  ros-$ROS_DISTRO-navigation2 \
+  ros-$ROS_DISTRO-nav2-bringup \
+  ros-$ROS_DISTRO-nav2-collision-monitor \
+  ros-$ROS_DISTRO-nav2-simple-commander \
+  ros-$ROS_DISTRO-tf-transformations \
   python3-numpy \
   python3-transforms3d
 ```
