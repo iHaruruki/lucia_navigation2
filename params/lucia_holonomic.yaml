@@ -429,4 +429,4 @@ velocity_smoother:
     odom_topic: "odom"
     odom_duration: 0.1
     use_realtime_priority: false
-    enable_stamped_cmd_vel: false
+    enable_stamped_cmd_vel: true
